@@ -1,0 +1,81 @@
+{
+  "_readme": "Every knob the agent obeys. Copy to settings.json (setup.sh does this for you) and edit. Full docs: README.md#settings.",
+  "run": {
+    "max_applications_per_run": 3,
+    "dry_run": false,
+    "one_application_per_company_per_run": true,
+    "same_day_company_freeze": true
+  },
+  "schedule": {
+    "frequency": "manual",
+    "_frequency_options": "manual | hourly | every-2-hours | every-3-hours | every-6-hours | daily | weekdays"
+  },
+  "targets": {
+    "roles": [
+      "software engineer",
+      "full stack engineer",
+      "AI/ML engineer",
+      "research engineer",
+      "forward deployed engineer",
+      "member of technical staff"
+    ],
+    "seniority": [
+      "new-grad",
+      "internship"
+    ],
+    "max_years_experience_required": 1,
+    "locations": [
+      "San Francisco Bay Area",
+      "New York",
+      "Seattle",
+      "Remote (US)"
+    ],
+    "min_annual_comp_usd": 150000,
+    "_min_annual_comp_note": "Applies to FULL-TIME roles only. Internships post hourly or monthly pay and would fail an annual floor, so they are judged by internship_min_hourly_usd instead.",
+    "internship_min_hourly_usd": 0,
+    "_internship_note": "Hourly floor for internships. 0 means no floor: judge internships by prestige_note alone. Top US SWE internships run roughly $40-$120/hour.",
+    "prioritize_above_usd": 250000,
+    "count_equity_toward_comp": true,
+    "prestige_note": "One or two sentences describing what makes a company worth your time. The agent uses this as a judgment gate when a posting lists no salary band. Example: 'Only frontier AI labs, top-tier AI startups, or top quant firms. Skip ordinary enterprise software companies.'",
+    "priority_companies": [],
+    "skip_companies": [],
+    "skip_notes": [
+      "Defense and ITAR employers require US persons.",
+      "Companies that do not sponsor visas are a dead end if you need sponsorship."
+    ]
+  },
+  "eligibility": {
+    "needs_visa_sponsorship": false,
+    "us_person_only_roles_ok": true,
+    "earliest_start": "2027-06",
+    "latest_start": "2027-09",
+    "graduation": "May 2027"
+  },
+  "channels": {
+    "allowed_ats": [
+      "greenhouse",
+      "lever",
+      "ashby",
+      "workable",
+      "company career portal"
+    ],
+    "blocked_aggregators": [
+      "handshake",
+      "linkedin easy apply",
+      "simplify",
+      "indeed quick apply"
+    ],
+    "_why": "Aggregators need accounts and hide the real form. The agent applies on the company's own ATS only."
+  },
+  "safety": {
+    "never_create_accounts": true,
+    "never_solve_interactive_captcha": true,
+    "never_fabricate_a_fact": true,
+    "screenshot_every_submit": true,
+    "require_log_before_submit": true
+  },
+  "integrations": {
+    "post_run_script": "",
+    "_post_run_note": "Optional path to a python3 script run after each run. Left empty by default."
+  }
+}
