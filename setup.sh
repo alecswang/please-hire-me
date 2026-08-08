@@ -133,6 +133,24 @@ if [ "$WRITE_PROFILE" = "1" ]; then
     AUTHUS="Yes, authorized to work in the US"
   fi
   echo
+  echo "  ${DIM}Address and demographics. Press Enter on any of these to skip it; the agent${OFF}"
+  echo "  ${DIM}declines to answer rather than guessing.${OFF}"
+  ask ADDR_STREET "Street address:"            ""
+  ask ADDR_CITY   "City:"                      ""
+  ask ADDR_STATE  "State (2 letters):"         ""
+  ask ADDR_ZIP    "ZIP:"                       ""
+  ADDR_FULL=""
+  if [ -n "$ADDR_STREET" ] && [ -n "$ADDR_CITY" ] && [ -n "$ADDR_STATE" ] && [ -n "$ADDR_ZIP" ]; then
+    ADDR_FULL="$ADDR_STREET, $ADDR_CITY, $ADDR_STATE $ADDR_ZIP"
+  fi
+  ask PRONOUNS   "Pronouns:"                   "Prefer not to say"
+  ask NATIVENAME "Legal name in native script, if it has one (Enter to skip):" ""
+  echo "  ${DIM}The four EEO questions every US form asks. Declining is a real answer.${OFF}"
+  ask EEO_RACE   "Race / ethnicity:"           "Decline to self-identify"
+  ask EEO_GENDER "Gender:"                     "Decline to self-identify"
+  ask EEO_VET    "Veteran status:"             "Not a protected veteran"
+  ask EEO_DIS    "Disability status:"          "No, I do not have a disability"
+  echo
   ask RESUMESRC  "Path to your resume PDF:"    ""
   RESUMESRC="${RESUMESRC/#\~/$HOME}"
   RESUME_REL="data/resume.pdf"
@@ -153,6 +171,9 @@ if [ "$WRITE_PROFILE" = "1" ]; then
   SCHOOLFULL="$SCHOOLFULL" MAJOR="$MAJOR" DEGREETYPE="$DEGREETYPE" GRAD="$GRAD" GPA="$GPA" \
   SCHOOLMAIL="$SCHOOLMAIL" NEEDSPON="$NEEDSPON" VISASTATUS="$VISASTATUS" VISATYPE="$VISATYPE" \
   CITIZEN="$CITIZEN" AUTHUS="$AUTHUS" RESUME_REL="$RESUME_REL" TRANSCRIPT_REL="$TRANSCRIPT_REL" \
+  ADDR_STREET="$ADDR_STREET" ADDR_CITY="$ADDR_CITY" ADDR_STATE="$ADDR_STATE" ADDR_ZIP="$ADDR_ZIP" \
+  ADDR_FULL="$ADDR_FULL" PRONOUNS="$PRONOUNS" NATIVENAME="$NATIVENAME" EEO_RACE="$EEO_RACE" \
+  EEO_GENDER="$EEO_GENDER" EEO_VET="$EEO_VET" EEO_DIS="$EEO_DIS" \
   python3 - <<'PY'
 import json, os
 p = 'config/profile.json'
@@ -179,10 +200,19 @@ d.update({
       if e("NEEDSPON","").startswith("No") else
       f'Not a US person. Citizen of {e("CITIZEN","")}, currently on {e("VISASTATUS","")}.'),
   "gpa": e("GPA",""),
+  "mailing_address_street": e("ADDR_STREET",""), "mailing_address_city": e("ADDR_CITY",""),
+  "mailing_address_state": e("ADDR_STATE",""), "mailing_address_zip": e("ADDR_ZIP",""),
+  "mailing_address_full": e("ADDR_FULL",""),
+  "pronouns_answer": e("PRONOUNS","Prefer not to say"),
+  "name_native_language": e("NATIVENAME",""),
+  "eeo": {
+    "race": e("EEO_RACE","Decline to self-identify"),
+    "gender": e("EEO_GENDER","Decline to self-identify"),
+    "veteran": e("EEO_VET","Not a protected veteran"),
+    "disability": e("EEO_DIS","No, I do not have a disability"),
+  },
 })
-for k in ("mailing_address_street","mailing_address_city","mailing_address_state",
-          "mailing_address_zip","mailing_address_full","high_school_name","high_school_grad_year",
-          "current_employer"):
+for k in ("high_school_name","high_school_grad_year","current_employer"):
     d[k] = ""
 json.dump(d, open(p,'w'), indent=2, ensure_ascii=False)
 open(p,'a').write('\n')

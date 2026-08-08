@@ -42,9 +42,12 @@ only if the user asks for a hands-off or non-interactive path.
    up front ("fifteen questions, then I write the files"), mark the optional ones as optional, give
    the default you will use for anything they skip, and tell them to answer in one message.
    - *About them:* work authorization and whether they need sponsorship; citizenship, for the
-     export-control question; mailing address; preferred vs legal first name; pronouns; the EEO
-     answers (offer "decline to self-identify" as the default); earliest start date; GPA and
-     whether to fill it when optional; transcript path. If their legal name has a native-script
+     export-control question; mailing address; preferred vs legal first name; pronouns; all four
+     EEO answers listed one by one, race, gender, veteran status, and disability (offer "decline to
+     self-identify" as the default for each). Never infer any of the four from a name, a photo, or
+     a resume, and never collapse them into a single "EEO answers" question, which is how gender
+     ends up unset. Also ask: earliest start date; GPA and whether to fill it when optional;
+     transcript path. If their legal name has a native-script
      form, ask for it verbatim (`name_native_language`) rather than transliterating.
    - *About targeting:* roles and titles; internship, new-grad, or both; locations plus whether
      remote counts; full-time compensation floor; internship hourly floor; their quality bar in
