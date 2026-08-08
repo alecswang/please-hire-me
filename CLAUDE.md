@@ -90,9 +90,23 @@ only if the user asks for a hands-off or non-interactive path.
    application. Carrying over an illustrative number from the example template is the specific
    mistake to watch for: `config/answers.example.md` ships with no example numbers precisely
    because they get copied. Titles are facts too: Co-founder is not CTO, intern is not engineer.
-6. **Offer to install the schedule** (`./scripts/schedule.sh install`) and explain the cadence.
-7. **Tell them to make the first run a dry run**: set `run.dry_run` to true and use `./run.sh 1`,
-   so they can read a filled form before anything is sent.
+6. **Offer to install the schedule**, explain the cadence, and if they say yes run
+   `./scripts/schedule.sh install` for them rather than printing it for them to run.
+7. **Run the first dry run yourself. Do not hand them a command to type.** Setup ends with the
+   user having watched you work, so ending on homework is the wrong last impression. Set
+   `run.dry_run` to true, then ask one yes-or-no question: whether to do the first dry run now,
+   saying plainly that it will source one real posting, fill every field, screenshot it, write the
+   log, and stop before submitting. Nothing is sent.
+   - **On yes:** confirm Chrome is open with the extension connected, then do a one-application dry
+     run in this session, following the run method in this file. You do not need `./run.sh` for
+     this; read `config/settings.json` and obey it directly. When it finishes, tell them which
+     posting it filled and point at the `applications/` doc and the screenshot.
+   - **On no:** give them `./run.sh 1` and say `run.dry_run` is already true.
+   - Either way, tell them how to go live afterwards: read the filled form, then set
+     `run.dry_run` to false.
+   - The same rule holds for the schedule in step 6 and for anything else the setup could do
+     itself. Offer to run it, get a yes, run it. A command in a code block is the fallback for
+     when they decline, not the default.
 
 ### Rules during onboarding
 - **Never invent a fact to fill a field.** An empty value that becomes a question later is correct;
