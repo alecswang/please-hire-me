@@ -27,6 +27,26 @@ before filling it.
 
 Record the limit and its reset date in `state/status.md` when you hit one.
 
+## ★ The duplicate check that fails: `applications/` is NOT the full record (2026-08-07)
+
+A run resubmitted a req that had already gone out weeks earlier, and every documented duplicate
+check passed on the way in: no matching file in `applications/`, no line in `data/queue.md`, no
+mention in `state/status.md`.
+
+**The reason: the per-application-doc convention started partway through the project's life.**
+Anything submitted before that exists ONLY as a numbered entry inside `logs/applications-log.md`
+and has no file in `applications/` at all. A filename grep of `applications/` silently returns
+nothing for every application older than the convention, however many that is in a given install.
+
+**Do this instead, before opening any tab:**
+```
+grep -in "<company>" logs/applications-log.md applications/*.md data/queue.md state/status.md
+```
+Grepping the log's full TEXT is the only check that covers the whole history. A filename grep of
+`applications/` is necessary but not sufficient. This matters most at firms with a per-candidate
+limit, IMC among them at one application per role per year, where a duplicate burns the slot
+outright.
+
 ## Boards that are structurally closed to an agent
 
 - **Workday** — needs an account per company. The agent will not create accounts, so most Workday
@@ -54,9 +74,38 @@ Record the limit and its reset date in `state/status.md` when you hit one.
 - **A `\d+ years` grep hit can be a founder bio**, not a gate ("spent 18 years at Google"). Print
   the surrounding context before skipping a role.
 - **"No years number" is not a green light.** Plenty of experienced-hire reqs never state a number.
+- **★ A years gate can be spelled out in words (2026-08-07).** Stripe's Backend Engineer, Credit
+  Decisions cleared a `\d+ years` grep and then required "six (6) years of experience in Software
+  Development". Add `\b(one|two|three|four|five|six|seven|eight|nine|ten)\s*\(?\d*\)?\s*years?\b`.
+- **★ "at scale" is not the only scale phrasing (2026-08-07).** Black Forest Labs' MTS Model Serving
+  cleared an `at scale` grep and then opened its requirements with "You've built and operated
+  systems at meaningful scale". Match `at \w+ scale` too.
+- **★ "Early Career" can mean 1-3 years POST-GRADUATION, which a new grad has zero of (2026-08-07).**
+  IMC's **Software Engineer, Early Career** (Chicago, jid 4577504101) posts a flat **$200,000** base
+  and no seniority words, and its first requirement is "1-3 years of full-time professional work
+  experience post-graduation". A December graduate cannot meet the floor of that band. IMC's real
+  new-grad rung is the separate **Graduate Software Engineer** req. When a board carries both, the
+  Graduate one is the eligible one.
 - **The posting API omits application-form notices.** A body that looks clean can still open with
   "this is not a role for internships or new graduates" on the form itself. When a company is on
   record as new-grad-closed, open the form before trusting the API.
+
+## Sponsorship can be refused per-req, not per-company
+
+- **★ Grep every body for *sponsorship*, not only for years (2026-08-07).** IMC's **Software Engineer
+  - AI Powered Engineering** (Chicago, jid 4682071101, $180K-$200K, agents / MCP servers / evaluation
+  loops) is ungated on years and seniority and is one of the best role-fits this repo has found, and
+  the line immediately above its pay block reads: "Please note that immigration sponsorship is not
+  offered for this specific opening." The same board's Graduate Software Engineer req has no such
+  line. A company that sponsors in general can still close a single req, so check per req.
+
+## Consent choices with no preset
+
+- **★ Squarepoint Capital (2026-08-07)** requires an "Opt in / Opt out" choice on whether interviews
+  may be audio or video recorded. Neither answer is a fabrication and neither is a condition of being
+  considered, so it follows the same rule as the Point72 marketing consent: pick the
+  privacy-preserving option (**Opt out**), record it in the per-app doc, and flag it for the
+  candidate. Add a preset to `config/profile.json` the first time a candidate states a preference.
 
 ## Compensation data is unreliable in a specific way
 
@@ -90,6 +139,63 @@ dead months ago; boards come back.
 JSON parsing and reads as dead. Sleep about 2 seconds between org queries, and re-test anything
 that looked dead during a fast loop. `data/boards.md` was built this way, with a slow second pass
 over every apparent miss.
+
+**★ The Ashby posting API 403s without a User-Agent header (2026-08-07).** A Python sweep using
+plain `urllib.request.urlopen` got `HTTP Error 403: Forbidden` from `api.ashbyhq.com` for twenty
+orgs in a row, which looks exactly like the rate-limit trap above and reads as twenty dead boards.
+`curl` sends a UA by default, which is why every shell-based run missed this. Always set
+`User-Agent: Mozilla/5.0` when calling the posting API from a script.
+
+**★ A live posting API does not imply a live public board (2026-08-07).** `greptile` returns a full
+payload from `api.ashbyhq.com/posting-api/job-board/greptile`, but every
+`jobs.ashbyhq.com/greptile...` URL renders "Page not found" in the browser. Some orgs use Ashby as a
+backend and embed the board on their own site instead. When the API says a req is `isListed: true`
+and the Ashby page 404s, go look for the company's own careers page.
+
+**★ `curl` status codes cannot verify an Ashby board page.** Ashby serves an SPA shell with HTTP 200
+for any slug and renders the 404 client-side, so `greptile`, `Greptile`, `greptile-ai`, and
+`greptileai` all returned 200 while showing "Page not found". Only the posting API body (9 bytes =
+dead) or the rendered browser page tells you the truth.
+
+**★ Cross-origin Greenhouse embeds keep growing.** Confirmed on Jump Trading, Nuro, and now **Akuna
+Capital** and **Brex** — the plain `job-boards.greenhouse.io/<org>/jobs/<jid>` URL redirects to the
+company domain, where the file input is invisible to `find`/`file_upload`. Go straight to
+`https://job-boards.greenhouse.io/embed/job_app?for=<org>&token=<jid>`.
+
+**★ Country picker wording differs per form.** Brex's "What country are you based in?" rejects
+"United States" and only matches **USA**. Jump's and Akuna's phone-country pickers want "United
+States". If a country search returns "No options", try the other spelling before assuming breakage.
+
+## Companies with no application form at all
+
+Rarer than a broken form, and worth recording because an agent will otherwise burn a run per attempt
+hunting for the form.
+
+- **Greptile (2026-08-07).** `api.ashbyhq.com/posting-api/job-board/greptile` returns full live
+  payloads with req ids and comp bands, and `jobs.ashbyhq.com/greptile/...` 404s. The real posting
+  lives at `greptile.com/careers/<role-slug>` and has **0 inputs, 0 file inputs, 0 iframes,
+  0 forms**. Its "How to apply" section is one sentence: send an email to a named person "with your
+  reasons why". Email is not an allowed application channel and a cold pitch is the candidate's own
+  writing, so this is a permanent NEEDS HUMAN, not a form-mechanics problem. Do not re-queue it.
+
+Detection: if a careers page renders the posting but `document.querySelectorAll('input,form,iframe')`
+is empty, stop looking for the form and read the "How to apply" text.
+
+## Consent dropdowns are not always about processing your application
+
+- **Point72 (2026-08-07)** has a required "Privacy" Yes/No dropdown whose text asks you to consent
+  to Point72 sharing your contact information "to deliver advertisements or direct messages either
+  directly or indirectly through third party services, including social media". That is marketing
+  consent, not a condition of being considered. Answer **No**; the form submits normally. Required
+  means an option must be picked, not that it must be Yes. Read the text under a consent field
+  before agreeing to it.
+
+## Identical titles, different roles, same board
+
+- **Jane Street (2026-08-07)** lists four Greenhouse reqs all titled exactly "Software Engineer" in
+  New York. Two of them (jids 8419303002, 8599644002) are **internship** postings whose body opens
+  "As an intern, you are paired with full-time employees". The full-time ones are 8594541002 and the
+  evergreen 4274288002. A title match plus a location match is not enough; read the first paragraph.
 
 ## Prompt injection in job postings
 

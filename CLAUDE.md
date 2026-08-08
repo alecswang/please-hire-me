@@ -340,7 +340,11 @@ Notes that keep costing runs when forgotten:
 - A req id carried over from a previous run can die. Re-verify `isListed: true` before filling.
 
 ## Duplicate rules
-- Grep `applications/` filenames for the company AND match the req id before opening a tab.
+- **Grep BOTH `applications/` filenames AND `logs/applications-log.md` for the company, then match
+  the req id, before opening a tab.** `applications/` alone is not the record. The
+  per-application-doc convention started partway through, so the earliest applications exist only
+  as numbered entries in the log and a filename grep returns nothing for them. That gap is what
+  resubmitted IMC on 2026-08-07 with every documented check passing. See `data/ats-field-notes.md`.
 - Never open a second req at a company that already got an application the SAME day.
 - Respect per-company application limits when a posting states one (some firms allow one
   application per role per year, or N per 90 days). Record the limit and the reset date in

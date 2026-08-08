@@ -173,6 +173,7 @@ which tells you whether a comp filter will work without reading body text.
 | `cloudflare` | 297 | 9 |
 | `samsara` | 289 | 260 |
 | `coreweave` | 287 | 252 |
+| `janestreet` | 230 | 230 |
 | `point72` | 230 | 102 |
 | `roblox` | 222 | 194 |
 | `scaleai` | 215 | 137 |
@@ -190,6 +191,9 @@ which tells you whether a comp filter will work without reading body text.
 | `intercom` | 121 | 38 |
 | `jumptrading` | 105 | 43 |
 | `gleanwork` | 104 | 75 |
+| `squarepointcapital` | 87 | 44 |
+| `imc` | 165 | 61 |
+| `jumpcrypto` | 5 | 5 |
 | `worldquant` | 101 | 10 |
 | `cresta` | 99 | 85 |
 | `apptronik` | 83 | 82 |
@@ -263,6 +267,25 @@ which tells you whether a comp filter will work without reading body text.
 | `marshallwace` | 1 | 0 |
 | `paradigm` | 1 | 1 |
 | `tempo` | 1 | 1 |
+
+## Added 2026-08-07 (eighty-fourth iteration)
+
+Four Greenhouse boards that had never been probed. Found by guessing quant slugs, not by any list.
+Counts are from that day's probe.
+
+- **`janestreet` — 230 jobs, LIVE.** Jane Street. Four reqs are titled "Software Engineer"; jids
+  8419303002 and 8599644002 are INTERNSHIPS despite the identical title, and 8594541002 and
+  4274288002 are the full-time ones. Read the body before opening a form.
+- **`squarepointcapital` — 87 jobs, LIVE.** Completely unmined.
+- **`imc` — 165 jobs, LIVE.** Note the one-application-per-role-per-year limit in
+  `ats-field-notes.md`.
+- **`jumpcrypto` — 5 jobs, LIVE.** Distinct board from `jumptrading`.
+
+Slugs probed the same day that returned nothing: `hudsonrivertrading`, `headlandstech`, `sig`,
+`fiverings`, `xtxmarkets`, `radix`, `optiver` (0 jobs; the live one is `optiverus`), `citadel`,
+`twosigma`, `balyasny`, `millenniumcapitalpartners`, `peak6`, `wolverinetrading`, `vatic`,
+`graham`, `tradelinktech`, `sigmatrading`, `hrtdev`, `drwtrading` (the live one is `drweng`),
+`cubistsystematicstrategies`, `belvederetrading`, `xtx`.
 
 ## Not listed
 
