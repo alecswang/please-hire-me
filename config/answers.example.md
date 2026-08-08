@@ -14,7 +14,11 @@ Copy this to `config/answers.md` (`setup.sh` does it for you) and replace every 
 ## Four canonical templates
 These answer the four questions almost every form asks: "why this role", "tell us about a project",
 "why you". Write one per lane you apply to, so the agent can pick the closest fit and adapt it.
-Keep each one concrete: what you built, with what, and the number that shows it worked.
+Keep each one concrete: what you did, what you did it with, and the number that shows it worked.
+
+The four lanes are shapes of work, not job families. They fit a nurse, a paralegal, a designer, a
+teacher, or a bond trader as well as they fit an engineer. Read each header's second line for the
+translation, and rename a lane if your field calls it something else.
 
 **Every number and every job title here must come from the resume or from the person, verbatim.
 This file ships with no example figures on purpose: an illustrative number left in a template gets
@@ -23,31 +27,46 @@ the resume states it. Do not round it, do not add a count the resume never gave,
 a title. If a sentence would read better with a detail the resume does not contain, the sentence
 loses.
 
-### Template A — infra / dev tools / backend / AI product
-[One paragraph about the most technical thing you shipped. Name the system, the stack, and a
-measured result. Shape: "At [COMPANY], I built [SYSTEM] using [STACK]. It [MEASURED OUTCOME,
-copied exactly from the resume: the rate, the count, the before-and-after]."]
+### Template A — the craft: the hardest thing you built, ran, or delivered
+*Engineering: a system. Design: a product surface. Finance: a model. Marketing: a campaign.
+Healthcare: a protocol or a caseload. Law: a filing or a matter. Teaching: a course.*
 
-### Template B — startup / growth / product / generalist
-[One paragraph about shipping something end to end, ideally with users or revenue attached.]
+[One paragraph about the most demanding piece of work you have done. Name the thing, the tools or
+methods you used, and a measured result. Shape: "At [ORGANIZATION], I [BUILT / RAN / DELIVERED]
+[THE THING] using [TOOLS OR METHOD]. It [MEASURED OUTCOME, copied exactly from the resume: the
+rate, the count, the before-and-after]."]
 
-### Template C — client-facing / enterprise / forward deployed / consulting
-[One paragraph about working with a real customer or stakeholder: what you scoped, who you worked
-with, what shipped.]
+### Template B — ownership: something you took end to end
+*A company, a product, a program, a store, a study, a fundraiser, a team you started. Anything
+where you owned it from nothing to running, ideally with users, revenue, patients, students, or
+an audience attached.*
 
-### Template D — research / eval / AI lab
-[One paragraph about research, a benchmark, or an evaluation you built. Include the dataset size,
-the models tested, and the headline number.]
+[One paragraph about what it was, what you personally did, and what it reached. Include the number
+that shows it was real: customers, revenue, headcount, people served.]
+
+### Template C — people: a real client, customer, patient, or stakeholder
+*Consulting, sales, support, forward-deployed engineering, account work, casework, bedside care,
+teaching, anything where the work happened with someone rather than at a desk alone.*
+
+[One paragraph about working with a real person or organization outside your own team: what you
+scoped, who you worked with, what changed for them, and how you know.]
+
+### Template D — evidence: research, analysis, or evaluation
+*A paper, a benchmark, a dataset, an audit, a market analysis, a clinical study, a policy memo.
+Anything where you started from a question and produced a defensible answer.*
+
+[One paragraph about the question, the method, the size of what you looked at, and the headline
+result. Include the number.]
 
 ## Fact sheet (the ONLY facts allowed in novel answers)
 Every line is one verifiable thing about you. The agent may recombine these but may not add to
 them. Include exact numbers; they are what make an answer credible.
 
-- [Job/internship: title, company, dates, team, what you built, measured result.]
-- [Project or startup: what it is, stack, users or customers, your specific role.]
-- [Research: paper, benchmark, or lab work. Size, method, result.]
-- [Education: school, degree, graduation, GPA, relevant coursework.]
-- [Languages and tools you actually use.]
+- [Job, internship, or placement: title, organization, dates, team, what you did, measured result.]
+- [Something you own or started: what it is, how it is made, who it serves, your specific role.]
+- [Research, analysis, or evaluation: the question, the size, the method, the result.]
+- [Education: school, degree or credential, graduation, GPA, relevant coursework, licences.]
+- [Tools, languages, systems, or methods you actually use.]
 - [Anything else a form has asked you about before: leadership, volunteering, awards.]
 
 ## Preset legal / EEO answers
