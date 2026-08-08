@@ -17,9 +17,11 @@ These answer the four questions almost every form asks: "why this role", "tell u
 Keep each one concrete: what you built, with what, and the number that shows it worked.
 
 **Every number and every job title here must come from the resume or from the person, verbatim.
-This file contains no example numbers on purpose: an illustrative figure left in a template gets
-copied into a real application and becomes a lie on a form.** If the resume says 90%, the template
-says 90%. If it says Co-founder, the template does not say CTO.
+This file ships with no example figures on purpose: an illustrative number left in a template gets
+copied into a real application and becomes a false claim on a form.** Copy each figure exactly as
+the resume states it. Do not round it, do not add a count the resume never gave, and do not upgrade
+a title. If a sentence would read better with a detail the resume does not contain, the sentence
+loses.
 
 ### Template A — infra / dev tools / backend / AI product
 [One paragraph about the most technical thing you shipped. Name the system, the stack, and a
