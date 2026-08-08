@@ -9,14 +9,11 @@
 [![Runs on Claude Code](https://img.shields.io/badge/runs%20on-Claude%20Code-black.svg)](https://claude.com/claude-code)
 [![macOS | Linux](https://img.shields.io/badge/macOS-%7C%20Linux-black.svg)](#quick-start)
 
-It finds live openings, internships and new-grad roles alike, fills the company's own
-Greenhouse / Lever / Ashby form field by field in your real Chrome, and submits. Every answer is logged before it clicks, every submit is
-screenshotted. It never invents a fact about you.
-
-**You set it up once.** One conversation, about five minutes, and it writes your config from your
-resume. After that it runs on the schedule you pick, sourcing new openings and applying on its own
-while you do something else. No command to remember, no queue to maintain, nothing to approve each
-time.
+You set it up once, in one conversation of about five minutes, and it writes your config from your
+resume. After that it runs autonomously, finding live openings, internships and new-grad roles
+alike, filling the company's own Greenhouse / Lever / Ashby form field by field in your real Chrome,
+and submitting. Every answer is logged before it clicks, every submit is screenshotted, and it never
+invents a fact about you.
 
 </div>
 
