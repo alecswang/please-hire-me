@@ -19,14 +19,13 @@ account, and never apply to something the user is not eligible for.
 If `config/profile.json`, `config/answers.md`, or `config/settings.json` is missing, this is a new
 install. **Do not open a browser and do not apply to anything.** Set them up first.
 
-Offer two paths and let the user pick:
-- **`./setup.sh`** — a two-minute terminal wizard. Mechanical, asks the ATS questions, writes the
-  config. Good if they want to be left alone.
-- **Guided setup, with you doing the work** — better, because you can read their resume and draft
-  the hard file (`config/answers.md`) instead of leaving them a blank template. Default to
-  recommending this one.
+**Do not offer a menu. Start the setup yourself, at step 1, in the same message.** A new user has
+no basis to choose between paths, and the choice is the first thing that stalls them. You read
+their resume and draft the hard file (`config/answers.md`) for them; that is strictly better than
+leaving a blank template, so just do it. A `./setup.sh` terminal wizard also exists — mention it
+only if the user asks for a hands-off or non-interactive path.
 
-### Guided setup, step by step
+### Setup, step by step
 1. **Copy the templates first** if they are absent: `config/{profile,settings}.example.json` →
    `config/{profile,settings}.json`, `config/answers.example.md` → `config/answers.md`,
    `data/queue.example.md` → `data/queue.md`. Create `applications/ logs/ screenshots/ state/`.
@@ -36,22 +35,31 @@ Offer two paths and let the user pick:
    major, graduation, GPA, LinkedIn, GitHub, site. Then **show every extracted value and have the
    user confirm or correct each one.** If the resume does not state something, leave it empty and
    ask. Never infer an address, a GPA, or a graduation date.
-4. **Ask what the resume cannot tell you**, one short batch at a time: work authorization and
-   whether they need sponsorship; mailing address; preferred vs legal first name; pronouns; the EEO
-   answers (offer "decline to self-identify" as the default); earliest start date; whether to fill
-   GPA when optional. If their legal name has a native-script form, ask for it verbatim
-   (`name_native_language`) rather than transliterating.
-5. **Draft `config/answers.md`, the file that decides everything.** Write the templates from their
-   real work, keeping every number exactly as the resume states it. Build the fact sheet with one
-   line per job, project, and result. Then **read it back and get explicit confirmation.** If a
-   bullet is vague ("improved performance"), ask for the number instead of inventing one. This is
-   the step that makes their runs work, so do not rush it.
-6. **Ask the targeting questions** and write `config/settings.json`: roles and titles; internship,
-   new-grad, or both; locations plus whether remote counts; full-time compensation floor;
-   internship hourly floor; their quality bar in their own words (`prestige_note`); companies to
-   never apply to. Explain that the annual floor does not apply to internships.
-7. **Offer to install the schedule** (`./scripts/schedule.sh install`) and explain the cadence.
-8. **Tell them to make the first run a dry run**: set `run.dry_run` to true and use `./run.sh 1`,
+4. **Ask EVERY remaining question in ONE numbered list. This is the only question you get to ask.**
+   Not one batch about them and a second batch about targeting later; both go in the same list. A
+   user who cannot see how many rounds are left assumes it is endless and quits partway, and a
+   second list after they thought they were finished is worse than a long first one. Say the count
+   up front ("fifteen questions, then I write the files"), mark the optional ones as optional, give
+   the default you will use for anything they skip, and tell them to answer in one message.
+   - *About them:* work authorization and whether they need sponsorship; citizenship, for the
+     export-control question; mailing address; preferred vs legal first name; pronouns; the EEO
+     answers (offer "decline to self-identify" as the default); earliest start date; GPA and
+     whether to fill it when optional; transcript path. If their legal name has a native-script
+     form, ask for it verbatim (`name_native_language`) rather than transliterating.
+   - *About targeting:* roles and titles; internship, new-grad, or both; locations plus whether
+     remote counts; full-time compensation floor; internship hourly floor; their quality bar in
+     their own words (`prestige_note`); companies to never apply to. Say that the annual floor does
+     not apply to internships, since that surprises people.
+
+   Only follow up on what came back blank or incomplete, and say that it is the last of it.
+5. **Draft `config/answers.md`, the file that decides everything, and write `config/settings.json`
+   from the targeting answers.** Write the templates from their real work, keeping every number
+   exactly as the resume states it. Build the fact sheet with one line per job, project, and
+   result. Then **read the templates back and get explicit confirmation.** If a bullet is vague
+   ("improved performance"), ask for the number instead of inventing one. This is the step that
+   makes their runs work, so do not rush it.
+6. **Offer to install the schedule** (`./scripts/schedule.sh install`) and explain the cadence.
+7. **Tell them to make the first run a dry run**: set `run.dry_run` to true and use `./run.sh 1`,
    so they can read a filled form before anything is sent.
 
 ### Rules during onboarding

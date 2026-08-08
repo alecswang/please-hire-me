@@ -43,17 +43,27 @@ git clone https://github.com/alecswang/please-hire-me.git
 cd please-hire-me
 ```
 
-Then pick one:
+Open the repo in Claude Code and say *"set me up"*. Setup is one conversation, about five minutes,
+and Claude does the typing:
 
-**A. Let Claude Code set it up** (recommended). Open the repo and say *"set me up"*. It reads your
-resume, drafts your profile and your answer templates from your real work, asks about the things a
-resume cannot tell it (work authorization, start date, what counts as a good job to you), and reads
-everything back for you to confirm before writing. It never invents a fact about you.
+1. It asks for your resume and reads it.
+2. It shows you every value it pulled out so you can correct what is wrong.
+3. It asks **one list** of the questions a resume cannot answer, all at once, with the default it
+   will use for anything you skip. Work authorization, start date, what counts as a good job to you.
+4. It drafts your answer templates from your real work and reads them back for you to approve.
 
-**B. Run the wizard** — `./setup.sh`. Two minutes, asks the questions every form asks, writes your
-config. Leaves `config/answers.md` as a blank template for you to fill in yourself, which takes
-about twenty minutes and is the step that decides whether the agent flies or stalls at every
-"why do you want this role?".
+Then it writes your three config files. It never invents a fact about you, and it does not open a
+browser or apply to anything during setup.
+
+<details>
+<summary>Prefer a terminal wizard?</summary>
+
+`./setup.sh` asks the questions every form asks and writes your config in about two minutes. It
+leaves `config/answers.md` as a blank template for you to fill in yourself, which takes about
+twenty minutes and is the step that decides whether the agent flies or stalls at every "why do you
+want this role?". Letting Claude draft it from your resume is why the guided path is the default.
+
+</details>
 
 **Run it:**
 
@@ -75,15 +85,18 @@ turn it off.
 
 ## What you give it
 
-A missing fact becomes a question for you, never a guess. Three files decide everything:
+A missing fact becomes a question for you, never a guess. Three files decide everything, and setup
+writes all three for you:
 
-| File | What goes in it | Time |
+| File | What goes in it | Where it comes from |
 |---|---|---|
-| `config/profile.json` | Name, contact, school, degree, graduation, GPA, visa status, links, resume path. | `setup.sh` |
-| `config/answers.md` | Free-text templates, your fact sheet, presets for salary, start date, EEO. **The one that matters.** | 20 min, once |
-| `config/settings.json` | Cap per run, frequency, and what counts as a target: roles, locations, comp floor, skip list, your quality bar. | `setup.sh` |
+| `config/profile.json` | Name, contact, school, degree, graduation, GPA, visa status, links, resume path. | read off your resume, then you correct it |
+| `config/answers.md` | Free-text templates, your fact sheet, presets for salary, start date, EEO. **The one that matters.** | drafted from your resume, then you approve it |
+| `config/settings.json` | Cap per run, frequency, and what counts as a target: roles, locations, comp floor, skip list, your quality bar. | your answers to the question list |
 
-Each has a `.example` twin showing exactly what belongs there. Your real files are gitignored.
+Each has a `.example` twin showing exactly what belongs there. Your real files are gitignored, so
+nothing about you leaves your machine. Edit any of them by hand later; the agent rereads them every
+run.
 
 ## Settings
 
@@ -204,6 +217,10 @@ Northwestern quant list are all internship-first.
 
 **Can I use it for non-engineering roles?** Yes. Nothing is engineering-specific except the defaults
 in `settings.example.json` and the source list. Change the roles and the fact sheet.
+
+**How long is setup, really?** About five minutes of your attention. Claude reads the resume, shows
+you what it found, asks one list of questions, and drafts `config/answers.md` for you. The wizard
+path is faster to run and slower to finish, because it hands you a blank `answers.md`.
 
 **Why does it keep saying NEEDS HUMAN?** A fact is missing from `answers.md` or `profile.json`. Add
 it once and that class of block disappears forever.
