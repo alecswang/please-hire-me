@@ -16,10 +16,15 @@ These answer the four questions almost every form asks: "why this role", "tell u
 "why you". Write one per lane you apply to, so the agent can pick the closest fit and adapt it.
 Keep each one concrete: what you built, with what, and the number that shows it worked.
 
+**Every number and every job title here must come from the resume or from the person, verbatim.
+This file contains no example numbers on purpose: an illustrative figure left in a template gets
+copied into a real application and becomes a lie on a form.** If the resume says 90%, the template
+says 90%. If it says Co-founder, the template does not say CTO.
+
 ### Template A — infra / dev tools / backend / AI product
 [One paragraph about the most technical thing you shipped. Name the system, the stack, and a
-measured result. Example shape: "At [company], I built [thing] using [stack]. It [measured
-outcome: 80% acceptance across 60 tickets, cut turnaround from 2 weeks to 3 days]."]
+measured result. Shape: "At [COMPANY], I built [SYSTEM] using [STACK]. It [MEASURED OUTCOME,
+copied exactly from the resume: the rate, the count, the before-and-after]."]
 
 ### Template B — startup / growth / product / generalist
 [One paragraph about shipping something end to end, ideally with users or revenue attached.]

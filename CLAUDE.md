@@ -41,6 +41,13 @@ only if the user asks for a hands-off or non-interactive path.
    second list after they thought they were finished is worse than a long first one. Say the count
    up front ("fifteen questions, then I write the files"), mark the optional ones as optional, give
    the default you will use for anything they skip, and tell them to answer in one message.
+
+   **Build the list by walking `config/profile.example.json` and `config/answers.example.md` key by
+   key**, not from memory and not from the topics below. Those files are the checklist. A key you
+   forget is exactly how a second round happens, which is the thing this rule exists to prevent.
+   Keys that ship with a working default (desired compensation, the three availability answers, how
+   they heard about the company, notice period) are NOT questions: apply the default, say in one
+   line which defaults you took, and move on.
    - *About them:* work authorization and whether they need sponsorship; citizenship, for the
      export-control question; mailing address; preferred vs legal first name; pronouns; all four
      EEO answers listed one by one, race, gender, veteran status, and disability (offer "decline to
@@ -54,13 +61,23 @@ only if the user asks for a hands-off or non-interactive path.
      their own words (`prestige_note`); companies to never apply to. Say that the annual floor does
      not apply to internships, since that surprises people.
 
-   Only follow up on what came back blank or incomplete, and say that it is the last of it.
+   Follow up ONLY on an answer that came back blank, self-contradictory, or unusable, and say that
+   it is the last of it. **A field you forgot to ask about is not grounds for a second round.**
+   Take the template's default, name the default you took in one line, and let them correct it if
+   they care. A second list, arriving after the user thought they were done, is the failure this
+   whole step is written to prevent.
 5. **Draft `config/answers.md`, the file that decides everything, and write `config/settings.json`
    from the targeting answers.** Write the templates from their real work, keeping every number
    exactly as the resume states it. Build the fact sheet with one line per job, project, and
    result. Then **read the templates back and get explicit confirmation.** If a bullet is vague
    ("improved performance"), ask for the number instead of inventing one. This is the step that
    makes their runs work, so do not rush it.
+
+   **Before you read the templates back, check every number and every job title in them against
+   the resume, one at a time.** A figure that is close but not equal is a fabrication on a real
+   application. Carrying over an illustrative number from the example template is the specific
+   mistake to watch for: `config/answers.example.md` ships with no example numbers precisely
+   because they get copied. Titles are facts too: Co-founder is not CTO, intern is not engineer.
 6. **Offer to install the schedule** (`./scripts/schedule.sh install`) and explain the cadence.
 7. **Tell them to make the first run a dry run**: set `run.dry_run` to true and use `./run.sh 1`,
    so they can read a filled form before anything is sent.
