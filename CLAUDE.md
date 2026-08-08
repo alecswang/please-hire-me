@@ -113,8 +113,20 @@ only if the user asks for a hands-off or non-interactive path.
    - **Not yet.** Give them `./run.sh 1` and move on.
 
    Do it in this session; you do not need `./run.sh`. Read `config/settings.json` and obey it
-   directly. Confirm Chrome is open with the extension connected first. When it finishes, name the
-   posting and point at the `applications/` doc and the screenshot.
+   directly. When it finishes, name the posting and point at the `applications/` doc and the
+   screenshot.
+
+   **Preflight the browser before you start, and never make the user guess what is wrong.** Call
+   `list_connected_browsers`. Installing the extension cannot be automated: it is a Chrome Web
+   Store install, a sign-in, and per-site permission grants, all user gestures by design. So detect
+   the state and give the exact next step:
+   - *Empty list on the first call* → the extension is not connected. Tell them to install it from
+     https://claude.ai/chrome, sign in with the SAME account as this Claude Code session, and say
+     when it is done. Then re-check. Do not start a run and discover it mid-form.
+   - *Connected but every page action returns "Couldn't determine which page this action targets"*
+     → a different failure, usually transient. Wait and retry; it clears in 3-15 minutes.
+   - *Connected but the ATS domain is not permitted* → the extension grants access per site. Tell
+     them which domain to allow in the extension's settings.
 
    **Say plainly what happens after the first one**, because it is the thing users get wrong:
    scheduled runs submit on their own. There is no per-application checkpoint once the schedule is

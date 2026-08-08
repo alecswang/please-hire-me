@@ -38,6 +38,23 @@ NEEDS HUMAN: none. Tab group closed and confirmed gone.
 **You need:** [Claude Code](https://claude.com/claude-code) signed in · Chrome with the
 [Claude in Chrome](https://claude.ai/chrome) extension on the same account · your resume as a PDF.
 
+<details>
+<summary>Setting up the Chrome extension</summary>
+
+Three steps, all manual, none of them scriptable. Chrome requires a real user gesture to install an
+extension and to grant it a site, which is the correct behaviour and not something this repo should
+try to work around.
+
+1. Install [Claude in Chrome](https://claude.ai/chrome).
+2. Sign in with the **same Anthropic account** as your Claude Code session. A mismatch looks exactly
+   like the extension not being installed.
+3. Let it access the ATS domains when it asks. Access is granted per site.
+
+Setup checks this for you before the first application and tells you which of the three is missing,
+so you are not debugging it halfway through a filled form.
+
+</details>
+
 ```bash
 git clone https://github.com/alecswang/please-hire-me.git
 cd please-hire-me
