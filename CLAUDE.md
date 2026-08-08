@@ -45,17 +45,29 @@ only if the user asks for a hands-off or non-interactive path.
    **Build the list by walking `config/profile.example.json` and `config/answers.example.md` key by
    key**, not from memory and not from the topics below. Those files are the checklist. A key you
    forget is exactly how a second round happens, which is the thing this rule exists to prevent.
-   Keys that ship with a working default (desired compensation, the three availability answers, how
-   they heard about the company, notice period) are NOT questions: apply the default, say in one
-   line which defaults you took, and move on.
-   - *About them:* work authorization and whether they need sponsorship; citizenship, for the
-     export-control question; mailing address; preferred vs legal first name; pronouns; all four
-     EEO answers listed one by one, race, gender, veteran status, and disability (offer "decline to
-     self-identify" as the default for each). Never infer any of the four from a name, a photo, or
-     a resume, and never collapse them into a single "EEO answers" question, which is how gender
-     ends up unset. Also ask: earliest start date; GPA and whether to fill it when optional;
-     transcript path. If their legal name has a native-script
-     form, ask for it verbatim (`name_native_language`) rather than transliterating.
+   Keys that ship with a working default (desired compensation, how they heard about the company,
+   notice period) are NOT questions: apply the default, say in one line which defaults you took,
+   and move on. `highest_education_completed_answer` is one of these: derive it from the resume as
+   the degree in progress with its expected date, never as high school, and state what you wrote.
+
+   Two exceptions to the default-instead-of-question rule. **The three availability answers
+   (`work_availability_heavy_hours`, `work_availability_travel_25pct`,
+   `work_availability_50pct_support`) get asked as one combined question**, because a default Yes
+   silently commits a stranger to nights, weekends, travel, and half their week on support tickets.
+   A neutral default like "decline to self-identify" may be assumed; a promise about how someone
+   will live may not. The same goes for anything else where the default is a commitment rather than
+   a decline.
+   - *About them, and this list is the minimum, not a sample:* preferred vs legal first name;
+     native-script legal name, asked for verbatim (`name_native_language`) and never
+     transliterated; **a personal non-`.edu` email, because a resume usually lists only the school
+     one and some ATS reject `.edu`**; mailing address; work authorization and whether they need
+     sponsorship; citizenship, for the export-control question; **`college_start_date`, the month
+     and year they started, which is almost never on a resume**; **`high_school_name` and
+     `high_school_grad_year`, optional but required by some forms**; earliest start date; GPA and
+     whether to fill it when optional; transcript path; pronouns; and all four EEO answers listed
+     one by one, race, gender, veteran status, and disability (offer "decline to self-identify" as
+     the default for each). Never infer any of the four from a name, a photo, or a resume, and
+     never collapse them into a single "EEO answers" question, which is how gender ends up unset.
    - *About targeting:* roles and titles; internship, new-grad, or both; locations plus whether
      remote counts; full-time compensation floor; internship hourly floor; their quality bar in
      their own words (`prestige_note`); companies to never apply to. Say that the annual floor does

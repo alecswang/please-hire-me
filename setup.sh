@@ -117,9 +117,12 @@ if [ "$WRITE_PROFILE" = "1" ]; then
   ask SCHOOLFULL "School's full name as ATS pickers spell it:" "$SCHOOL"
   ask MAJOR      "Major:"                      "Computer Science"
   ask DEGREETYPE "Degree type:"                "Undergraduate / Bachelor's"
+  ask COLLEGESTART "When did you start there (e.g. August 2023):" ""
   ask GRAD       "Graduation (e.g. May 2027):" ""
   ask GPA        "GPA (only used when a form requires it):" ""
   ask SCHOOLMAIL "School email:"               ""
+  ask HIGHSCHOOL "High school name (some forms require it, Enter to skip):" ""
+  ask HSYEAR     "High school graduation year:" ""
   echo
   if yesno "Do you need visa sponsorship to work in the US?" n; then
     NEEDSPON="Yes, need sponsorship"; SPON_BOOL=true
@@ -151,6 +154,24 @@ if [ "$WRITE_PROFILE" = "1" ]; then
   ask EEO_VET    "Veteran status:"             "Not a protected veteran"
   ask EEO_DIS    "Disability status:"          "No, I do not have a disability"
   echo
+  echo "  ${DIM}Startup and forward-deployed forms ask these three constantly. Answering now${OFF}"
+  echo "  ${DIM}stops the agent stalling on them later.${OFF}"
+  if yesno "Comfortable with heavy hours, most weeknights and some weekends?" y; then
+    AVAIL_HOURS="Yes, comfortable with most weeknights and some weekends"
+  else
+    AVAIL_HOURS="No"
+  fi
+  if yesno "Willing to travel about 25% of the time?" y; then
+    AVAIL_TRAVEL="Yes, willing to travel about 25% of the time"
+  else
+    AVAIL_TRAVEL="No"
+  fi
+  if yesno "Willing to spend up to 50% of your time on customer support?" y; then
+    AVAIL_SUPPORT="Yes, willing to spend up to 50% of time on customer support"
+  else
+    AVAIL_SUPPORT="No"
+  fi
+  echo
   ask RESUMESRC  "Path to your resume PDF:"    ""
   RESUMESRC="${RESUMESRC/#\~/$HOME}"
   RESUME_REL="data/resume.pdf"
@@ -174,6 +195,8 @@ if [ "$WRITE_PROFILE" = "1" ]; then
   ADDR_STREET="$ADDR_STREET" ADDR_CITY="$ADDR_CITY" ADDR_STATE="$ADDR_STATE" ADDR_ZIP="$ADDR_ZIP" \
   ADDR_FULL="$ADDR_FULL" PRONOUNS="$PRONOUNS" NATIVENAME="$NATIVENAME" EEO_RACE="$EEO_RACE" \
   EEO_GENDER="$EEO_GENDER" EEO_VET="$EEO_VET" EEO_DIS="$EEO_DIS" \
+  COLLEGESTART="$COLLEGESTART" HIGHSCHOOL="$HIGHSCHOOL" HSYEAR="$HSYEAR" \
+  AVAIL_HOURS="$AVAIL_HOURS" AVAIL_TRAVEL="$AVAIL_TRAVEL" AVAIL_SUPPORT="$AVAIL_SUPPORT" \
   python3 - <<'PY'
 import json, os
 p = 'config/profile.json'
@@ -195,7 +218,13 @@ d.update({
   "degree_type_answer": e("DEGREETYPE",""), "graduation": e("GRAD",""),
   "college_end_date": e("GRAD","") + " (graduation)",
   "degree": f'{e("DEGREETYPE","")}, {e("MAJOR","")}, {e("SCHOOL","")}',
-  "highest_education_completed_answer": f'{e("DEGREETYPE","")} in {e("MAJOR","")}, {e("SCHOOL","")}',
+  "college_start_date": e("COLLEGESTART",""),
+  "high_school_name": e("HIGHSCHOOL",""), "high_school_grad_year": e("HSYEAR",""),
+  "work_availability_heavy_hours": e("AVAIL_HOURS",""),
+  "work_availability_travel_25pct": e("AVAIL_TRAVEL",""),
+  "work_availability_50pct_support": e("AVAIL_SUPPORT",""),
+  "highest_education_completed_answer": f'{e("DEGREETYPE","")} in {e("MAJOR","")}, {e("SCHOOL","")}'
+      + (f' (in progress, expected {e("GRAD","")})' if e("GRAD","") else ''),
   "us_person_export_control_answer": ("I am a US citizen or permanent resident"
       if e("NEEDSPON","").startswith("No") else
       f'Not a US person. Citizen of {e("CITIZEN","")}, currently on {e("VISASTATUS","")}.'),
@@ -212,8 +241,7 @@ d.update({
     "disability": e("EEO_DIS","No, I do not have a disability"),
   },
 })
-for k in ("high_school_name","high_school_grad_year","current_employer"):
-    d[k] = ""
+d["current_employer"] = ""
 json.dump(d, open(p,'w'), indent=2, ensure_ascii=False)
 open(p,'a').write('\n')
 PY
