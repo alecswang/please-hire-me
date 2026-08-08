@@ -13,23 +13,12 @@ It finds live openings, internships and new-grad roles alike, fills the company'
 Greenhouse / Lever / Ashby form field by field in your real Chrome, and submits. Every answer is logged before it clicks, every submit is
 screenshotted. It never invents a fact about you.
 
+**You set it up once.** One conversation, about five minutes, and it writes your config from your
+resume. After that it runs on the schedule you pick, sourcing new openings and applying on its own
+while you do something else. No command to remember, no queue to maintain, nothing to approve each
+time.
+
 </div>
-
-```
-Run done. 3/3 submitted, cap reached, clean exit.
-
-| # | Company / Role                                          | Comp          |
-|---|---------------------------------------------------------|---------------|
-| 1 | Frontier AI lab - Research Engineer, DevEx (SF)         | $350K-$475K   |
-| 2 | Enterprise agent startup - Software Engineer (SF)       | $180K-$390K   |
-| 3 | Medical AI unicorn - Member of Technical Staff (SF)     | prestige gate |
-
-Every form: resume via file_upload, all fields typed with trusted input,
-0 aria-invalid before submit, success banner captured as JPG.
-NEEDS HUMAN: none. Tab group closed and confirmed gone.
-```
-
-<sub>A real run, about ten minutes. 196 applications sent this way so far.</sub>
 
 ---
 
