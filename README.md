@@ -122,10 +122,15 @@ One file, `config/settings.json`. The launcher turns it into the instructions th
 Run it on a schedule:
 
 ```bash
-./scripts/schedule.sh install     # reads schedule.frequency
-./scripts/schedule.sh status
-./scripts/schedule.sh uninstall
+./scripts/schedule.sh install        # reads schedule.frequency
+./scripts/schedule.sh status         # this checkout, plus every other one on the machine
+./scripts/schedule.sh uninstall      # this checkout only
+./scripts/schedule.sh uninstall-all  # every please-hire-me job on the machine
 ```
+
+Each checkout gets its own scheduled job, keyed to its path, so two clones can run on
+their own cadences without overwriting each other. `status` shows all of them and marks
+which one you are in.
 
 ## Why this instead of a one-click apply tool
 
