@@ -73,11 +73,18 @@ want this role?". Letting Claude draft it from your resume is why the guided pat
 ```
 
 <details>
-<summary><b>Try it without sending anything first</b> (recommended)</summary>
+<summary><b>How much rope to give it</b></summary>
 
-Set `"dry_run": true` in `config/settings.json`. The agent fills every field, verifies it,
-screenshots it, and writes the log, but never clicks submit. Read what it was about to send, then
-turn it off.
+**The first application is supervised.** At the end of setup it fills one real posting, shows you
+every answer, and submits only after you say yes. Say no and it closes the tab and sends nothing.
+A real application with a checkpoint, not a rehearsal.
+
+**Scheduled runs submit on their own.** Once `schedule.frequency` is set and the job is installed,
+there is no per-application checkpoint. That is the point of it.
+
+**Want a checkpoint every time?** `./run.sh` cannot give you one, it launches a headless session
+with nobody there to approve. Instead, open the repo in Claude Code and ask for a run, saying stop
+before submitting. You get the same checkpoint as the first application, every time.
 
 </details>
 
@@ -105,7 +112,6 @@ One file, `config/settings.json`. The launcher turns it into the instructions th
 | Key | Does what |
 |---|---|
 | `run.max_applications_per_run` | Hard cap per run. Default 3. |
-| `run.dry_run` | Fill and verify everything, never submit. |
 | `run.same_day_company_freeze` | Never open a second role at a company you applied to today. |
 | `schedule.frequency` | `manual`, `hourly`, `every-2-hours`, `every-3-hours`, `every-6-hours`, `daily`, `weekdays`. |
 | `targets.roles` | Titles to look for. |

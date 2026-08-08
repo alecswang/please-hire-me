@@ -326,7 +326,8 @@ cat <<EOF
     ${BOLD}./run.sh 1${OFF}        a single application, good for a first test
     ${BOLD}tail -f logs/scheduled-run.log${OFF}   watch a scheduled run
 
-  Tip for the first run: set "dry_run": true in config/settings.json. The agent
-  fills every form and screenshots it, but never clicks submit.
+  Tip for the first run: open the repo in Claude Code and ask for one application,
+  saying stop before submitting. You see every answer and approve it before it is
+  sent. ./run.sh is headless and submits on its own.
 
 EOF

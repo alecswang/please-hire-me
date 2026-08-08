@@ -8,8 +8,11 @@ this file is the what (rules, per-application procedure, log format). Every valu
 Read from `config/settings.json`:
 - `run.max_applications_per_run` — hard cap. The launcher passes it in the prompt; an argument to
   `./run.sh` overrides it.
-- `run.dry_run` — when true, fill and verify and screenshot every form, then close the tab WITHOUT
-  submitting. Log the application as DRY RUN.
+- `run.dry_run` — **contributor flag, absent from the default config on purpose.** When present and
+  true, fill and verify and screenshot every form, then close the tab WITHOUT submitting, and log
+  the application as DRY RUN. It exists so contributors can iterate against real forms without
+  sending anything. Do not offer it to a user as a way to run: a run that cannot submit burns a
+  real posting and teaches them nothing the supervised checkpoint does not.
 - `targets.*` — roles, seniority, locations, compensation floors, years-of-experience ceiling,
   the user's own quality bar, priority list, skip list. Note `min_annual_comp_usd` is a
   full-time floor; internships are judged by `internship_min_hourly_usd`.

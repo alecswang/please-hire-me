@@ -61,9 +61,11 @@ cd please-hire-me
 ./setup.sh
 ```
 
-Then set `"dry_run": true` in `config/settings.json`. That is the development mode: the agent fills
-every field, verifies it, screenshots it, writes the log, and never submits. You can iterate against
-real forms all day without sending anything to a real company.
+Then add `"dry_run": true` to the `run` block in `config/settings.json`. It is not in the default
+config, and users are never offered it: their first application is supervised, stopping for approval
+before it submits. `dry_run` exists for you. The agent fills every field, verifies it, screenshots
+it, writes the log, and never submits, so you can iterate against real forms all day without sending
+anything to a real company.
 
 Please do not test against a company you would not actually apply to. Use dry run, and if you need a
 form to poke at, use a posting you are genuinely a candidate for.

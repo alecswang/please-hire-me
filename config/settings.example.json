@@ -2,7 +2,6 @@
   "_readme": "Every knob the agent obeys. Copy to settings.json (setup.sh does this for you) and edit. Full docs: README.md#settings.",
   "run": {
     "max_applications_per_run": 3,
-    "dry_run": false,
     "one_application_per_company_per_run": true,
     "same_day_company_freeze": true
   },

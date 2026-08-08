@@ -90,20 +90,39 @@ only if the user asks for a hands-off or non-interactive path.
    application. Carrying over an illustrative number from the example template is the specific
    mistake to watch for: `config/answers.example.md` ships with no example numbers precisely
    because they get copied. Titles are facts too: Co-founder is not CTO, intern is not engineer.
+
+   **Ask for the confirmation in concrete terms, never as "do these read as yours?"** That phrasing
+   gives the user nothing to check against, so they skim and approve. Ask for the two specific
+   things instead, and name the figures you want them to verify:
+   > "Two things to check. Does this sound like you rather than like a brochure, and are these
+   > numbers right: 90% acceptance, two weeks down to two days, Co-founder. Change anything that is
+   > off and I will rewrite it."
+   Quote the actual figures from their drafts, not these. The point is that they are checking
+   claims they can verify, not judging prose.
 6. **Offer to install the schedule**, explain the cadence, and if they say yes run
    `./scripts/schedule.sh install` for them rather than printing it for them to run.
-7. **Run the first dry run yourself. Do not hand them a command to type.** Setup ends with the
-   user having watched you work, so ending on homework is the wrong last impression. Set
-   `run.dry_run` to true, then ask one yes-or-no question: whether to do the first dry run now,
-   saying plainly that it will source one real posting, fill every field, screenshot it, write the
-   log, and stop before submitting. Nothing is sent.
-   - **On yes:** confirm Chrome is open with the extension connected, then do a one-application dry
-     run in this session, following the run method in this file. You do not need `./run.sh` for
-     this; read `config/settings.json` and obey it directly. When it finishes, tell them which
-     posting it filled and point at the `applications/` doc and the screenshot.
-   - **On no:** give them `./run.sh 1` and say `run.dry_run` is already true.
-   - Either way, tell them how to go live afterwards: read the filled form, then set
-     `run.dry_run` to false.
+7. **Run the first application yourself, supervised.** Setup ends with the user having watched you
+   work, so ending on homework is the wrong last impression. **Never offer a run that cannot
+   submit.** A run that fills a form and then throws it away is a demo, and the user came here to
+   apply to jobs, so it wastes the one posting it touched and teaches them nothing they could not
+   learn from the checkpoint. Ask one question: do it now, or not yet.
+   - **Now (recommend this).** Source one real posting, fill every field, screenshot it, write the
+     log and the per-application doc, then **stop and show them everything before clicking
+     submit**. On their yes, submit for real. On their no, close the tab and send nothing. A real
+     application with a checkpoint.
+   - **Not yet.** Give them `./run.sh 1` and move on.
+
+   Do it in this session; you do not need `./run.sh`. Read `config/settings.json` and obey it
+   directly. Confirm Chrome is open with the extension connected first. When it finishes, name the
+   posting and point at the `applications/` doc and the screenshot.
+
+   **Say plainly what happens after the first one**, because it is the thing users get wrong:
+   scheduled runs submit on their own. There is no per-application checkpoint once the schedule is
+   installed. The supervised checkpoint exists for the first run, so they can see the quality
+   before handing over the wheel. `./run.sh` cannot offer one either: it launches a headless
+   `claude -p` session with nobody there to approve. If they want a checkpoint on every
+   application, the answer is to ask you for a run inside an interactive session and say "stop
+   before submitting", not a flag.
    - The same rule holds for the schedule in step 6 and for anything else the setup could do
      itself. Offer to run it, get a yes, run it. A command in a code block is the fallback for
      when they decline, not the default.
