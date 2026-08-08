@@ -16,15 +16,32 @@ for f in config/settings.json config/profile.json config/answers.md; do
 done
 
 # launchd runs with a minimal PATH that lacks the user's shell setup, so resolve
-# the claude binary explicitly. Prefer the stable ~/.local/bin symlink, then PATH.
-if [ -x "$HOME/.local/bin/claude" ]; then
-  CLAUDE_BIN="$HOME/.local/bin/claude"
-elif command -v claude >/dev/null 2>&1; then
-  CLAUDE_BIN="$(command -v claude)"
-else
-  echo "ERROR: claude binary not found (checked ~/.local/bin/claude and PATH)." >&2
-  exit 127
-fi
+# the agent binary explicitly. Prefer the stable ~/.local/bin symlink, then PATH.
+find_bin() {
+  if [ -x "$HOME/.local/bin/$1" ]; then echo "$HOME/.local/bin/$1"
+  elif command -v "$1" >/dev/null 2>&1; then command -v "$1"
+  fi
+}
+
+# AGENT=claude|codex picks the driver. Default prefers claude, which is the only
+# one whose browser path is verified against reCAPTCHA v3 scoring. See AGENTS.md.
+AGENT="${AGENT:-auto}"
+CLAUDE_BIN="$(find_bin claude)"
+CODEX_BIN="$(find_bin codex)"
+
+case "$AGENT" in
+  auto)
+    if [ -n "$CLAUDE_BIN" ]; then AGENT=claude
+    elif [ -n "$CODEX_BIN" ]; then AGENT=codex
+    else
+      echo "ERROR: neither 'claude' nor 'codex' found (checked ~/.local/bin and PATH)." >&2
+      exit 127
+    fi
+    ;;
+  claude) [ -n "$CLAUDE_BIN" ] || { echo "ERROR: AGENT=claude but claude binary not found." >&2; exit 127; } ;;
+  codex)  [ -n "$CODEX_BIN"  ] || { echo "ERROR: AGENT=codex but codex binary not found." >&2;  exit 127; } ;;
+  *) echo "ERROR: AGENT must be claude, codex, or auto. Got '$AGENT'." >&2; exit 2 ;;
+esac
 
 # Turn config/settings.json into the sentences the agent has to obey this run.
 SETTINGS_PROMPT="$(MAX_OVERRIDE="${1:-}" python3 - <<'PY'
@@ -128,16 +145,32 @@ fi
 echo "$$" > "$LOCK_DIR/pid"
 trap 'rm -rf "$LOCK_DIR" 2>/dev/null || true' EXIT
 
+# The browser half of the method is the only agent-specific part of the prompt.
+# Everything else (sourcing, vetting, logging, scope) is identical.
+if [ "$AGENT" = "claude" ]; then
+  ENTRY_DOC="CLAUDE.md"
+  METHOD_PROMPT="use the connected real Chrome through the Claude-in-Chrome extension and fill every field with trusted computer-tool input. Use file_upload for the resume and transcript. At the start, call tabs_context_mcp and close ONLY leftover job-application tabs inside your own MCP tab group from prior crashed runs; NEVER close, read, or navigate any tab that is not listed in your group, those are the user's personal tabs. Do the whole run in one reused tab, navigating it from posting to posting so no half-filled form is left behind. If the tab group drops mid-fill, reconnect via tabs_context_mcp, abandon the half-filled form rather than resuming it, and restart that company from a clean tab. Before exiting, close EVERY tab in your group with tabs_close_mcp and confirm tabs_context_mcp answers that no tab group exists."
+else
+  ENTRY_DOC="AGENTS.md"
+  METHOD_PROMPT="drive the user's own already-running Chrome over the Chrome DevTools MCP server, attached to it by remote debugging port so the real profile, cookies, and IP are used. Read AGENTS.md before touching the browser; it states which parts of the Claude method do and do not carry over. Fill fields with the MCP input tools rather than page JavaScript: page-dispatched events are untrusted and read as spam. Attach the resume and transcript with the file-upload tool against the file input, never by clicking Attach, which opens an OS dialog. Work in ONE tab that you opened yourself, navigate it from posting to posting, and never read, navigate, or close a tab you did not open. Close that tab at the end of the run."
+fi
+
 PROMPT="Continue the job application run in $(pwd). This is a fresh session: derive all durable state from repository files, not from chat history.
 
-Read and follow, in order: CLAUDE.md, config/settings.json, config/profile.json, config/answers.md, config/spec.md, data/queue.md, state/status.md, and logs/applications-log.md.
+Read and follow, in order: ${ENTRY_DOC}, config/settings.json, config/profile.json, config/answers.md, config/spec.md, data/queue.md, state/status.md, and logs/applications-log.md.
 
 RUN CONFIG (from config/settings.json, obey exactly): ${SETTINGS_PROMPT}
 
-METHOD: use the connected real Chrome through the Claude-in-Chrome extension and fill every field with trusted computer-tool input. Use file_upload for the resume and transcript. At the start, call tabs_context_mcp and close ONLY leftover job-application tabs inside your own MCP tab group from prior crashed runs; NEVER close, read, or navigate any tab that is not listed in your group, those are the user's personal tabs. Do the whole run in one reused tab, navigating it from posting to posting so no half-filled form is left behind. If the tab group drops mid-fill, reconnect via tabs_context_mcp, abandon the half-filled form rather than resuming it, and restart that company from a clean tab. Before exiting, close EVERY tab in your group with tabs_close_mcp and confirm tabs_context_mcp answers that no tab group exists.
+METHOD: ${METHOD_PROMPT}
 
 SCOPE: verify every posting is live and check applications/, data/queue.md, and logs/applications-log.md for duplicates before opening a tab. A hard eligibility mismatch is a SKIP with a one-line log entry, not a NEEDS HUMAN. NEEDS HUMAN is only for a role the user is eligible for that is missing a fact they could supply. Never submit a weak target just to reach the cap; zero strong submissions beats one bad one.
 
 END OF RUN: update the per-application docs, data/queue.md, logs/applications-log.md, and add a new status block at the top of state/status.md. If Chrome is disconnected or required facts are missing, log it and exit. Keep token use low by working the queue top-down and avoiding repeated research."
 
-"$CLAUDE_BIN" -p --chrome --no-session-persistence --dangerously-skip-permissions "$PROMPT"
+if [ "$AGENT" = "claude" ]; then
+  "$CLAUDE_BIN" -p --chrome --no-session-persistence --dangerously-skip-permissions "$PROMPT"
+else
+  # Codex needs write access to the repo and network access for the ATS APIs.
+  # It reads AGENTS.md automatically as its project instruction file.
+  "$CODEX_BIN" exec -C "$(pwd)" -s danger-full-access "$PROMPT"
+fi

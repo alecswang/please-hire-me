@@ -246,6 +246,14 @@ Northwestern quant list are all internship-first.
 **Can I use it for non-engineering roles?** Yes. Nothing is engineering-specific except the defaults
 in `settings.example.json` and the source list. Change the roles and the fact sheet.
 
+**Does it work with Codex or other agents?** Partly. [`AGENTS.md`](AGENTS.md) is the entry point for
+non-Claude agents, and `AGENT=codex ./run.sh` drives the run through Codex. Everything except the
+browser is identical: sourcing over the ATS JSON APIs, the config contract, vetting, dedup, and every
+file a run writes. The submit itself is the open question. The Claude-in-Chrome path is the one with
+200-plus landed submissions behind it; the Codex path attaches Chrome DevTools MCP to your own
+already-running Chrome, which is sound in theory and unverified against live ATS scoring. Read the
+"Status of this path" section in `AGENTS.md` before trusting it with a real application.
+
 **How long is setup, really?** About five minutes of your attention. Claude reads the resume, shows
 you what it found, asks one list of questions, and drafts `config/answers.md` for you. The wizard
 path is faster to run and slower to finish, because it hands you a blank `answers.md`.
