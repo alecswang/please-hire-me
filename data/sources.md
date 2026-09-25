@@ -53,6 +53,10 @@ curl -s https://api.github.com/repos/<owner>/<repo> \
 
 ---
 
+**Automated 2026-09-24:** `scripts/list_sweep.py` reads SimplifyJobs New-Grad-Positions and Summer2027-Internships
+every run through `.github/scripts/listings.json` on the `dev` branch. The vanshb03 forks carry the same file but had
+no new rows in 14 days, so they are left out. The other repos above publish only a README table.
+
 ## Tier 1b — Machine-readable feeds (query these from the shell, no browser)
 
 These return JSON. They are the cheapest way to find a role, because you filter on location,
@@ -176,6 +180,10 @@ agent stops surfacing it.
 ---
 
 ## Tier 5 — VC portfolio job boards
+
+**Automated 2026-09-24:** `scripts/list_sweep.py` reads the Consider boards (a16z, Sequoia, Lightspeed, Kleiner
+Perkins, GV, Bessemer) every run. Getro boards (General Catalyst `collections/468`, Khosla `collections/3`, Accel)
+are not covered: the Getro search API returned nothing. YC Work at a Startup and Wellfound need an account.
 
 Breadth across funded startups. Each links out to the company's own ATS, so they satisfy the
 apply-on-company-ATS rule.

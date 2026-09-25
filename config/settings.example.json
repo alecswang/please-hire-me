@@ -3,7 +3,13 @@
   "run": {
     "max_applications_per_run": 3,
     "one_application_per_company_per_run": true,
-    "same_day_company_freeze": true
+    "same_day_company_freeze": true,
+    "max_applications_per_company_lifetime": 2,
+    "_lifetime_cap_note": "Hard ceiling on TOTAL applications ever sent to one company, counted across applications/ AND logs/applications-log.md. An ATS dedupes by email, so every req lands on one candidate profile: many reqs in a short window read as spray, not interest, and buy nothing past the second. At the cap, SKIP the company and log one line.",
+    "pause_company_while_interviewing": true,
+    "_interview_pause_note": "Never send a new application to a company where an interview is in progress. A second recruiter can auto-reject the new req, stamping a rejection on the profile of an active loop. List interviewing companies in targets.skip_companies with the reason.",
+    "interview_tracker_path": "",
+    "_interview_tracker_note": "Optional absolute path to a note or file where YOU track interviews, OAs and recruiter threads (any format; company names are grepped). When set, the agent reads it at the start of every run and treats every company named in it as a HARD SKIP, on top of skip_companies. Keep it current and you never have to edit skip_companies by hand. Empty means off."
   },
   "schedule": {
     "frequency": "manual",
@@ -64,7 +70,15 @@
       "simplify",
       "indeed quick apply"
     ],
-    "_why": "Aggregators need accounts and hide the real form. The agent applies on the company's own ATS only."
+    "_why": "Aggregators need accounts and hide the real form. The agent applies on the company's own ATS only.",
+    "signed_in_portals": [],
+    "_signed_in_portals_note": "Optional. Career portals where YOU created the account and your Chrome is signed in. The agent may apply inside that session. It never creates accounts or types passwords; a login page is NEEDS HUMAN."
+  },
+  "broker": {
+    "gmail_account": "",
+    "signup_email_pattern": "",
+    "keychain_service": "jobapply-gmail-imap",
+    "_broker_note": "Optional. scripts/code_broker.py reads emailed verification codes over Gmail IMAP and pastes them into the page without the agent ever seeing the code or the password. One-time setup, done by YOU, not the agent: turn on 2-Step Verification, create an app password at https://myaccount.google.com/apppasswords, then in your own Terminal run `security add-generic-password -s jobapply-gmail-imap -a <gmail_account> -w` and paste it at the hidden prompt. Check with `python3 scripts/code_broker.py check`. signup_email_pattern is the plus address used per portal, {tag} = portal name."
   },
   "safety": {
     "never_create_accounts": true,

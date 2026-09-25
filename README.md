@@ -126,6 +126,10 @@ One file, `config/settings.json`. The launcher turns it into the instructions th
 | `targets.skip_companies` | Never apply here. |
 | `eligibility.needs_visa_sponsorship` | Skips non-sponsors, ITAR, and clearance roles. |
 | `eligibility.graduation` | Skips postings whose graduation window excludes you. |
+| `run.max_applications_per_company_lifetime` | Stop at this many applications to one company, ever. Default 2. |
+| `run.interview_tracker_path` | Your interview note; every company in it is skipped. See add-ons. |
+| `channels.signed_in_portals` | Portals where you are signed in and the agent may apply. See add-ons. |
+| `broker.*` | Gmail account for the emailed-code add-on. |
 | `safety.*` | No accounts, no CAPTCHA solving, no fabricated facts, screenshot every submit. |
 
 Run it on a schedule:
@@ -140,6 +144,48 @@ Run it on a schedule:
 Each checkout gets its own scheduled job, keyed to its path, so two clones can run on
 their own cadences without overwriting each other. `status` shows all of them and marks
 which one you are in.
+
+## Optional add-ons (each needs one step from you)
+
+None of these is required. Each unlocks more applications, and each has a step only you can do,
+because it involves an account, a password, or your own notes.
+
+**1. Company portals that need an account** (Amazon, Nvidia and other Workday companies, Microsoft,
+Apple, Two Sigma, Bloomberg, AMD, Qualcomm...). The agent never creates an account and never logs in.
+You sign up or sign in once in Chrome, then add the portal's host to `channels.signed_in_portals`:
+
+```json
+"signed_in_portals": ["amazon.jobs", "nvidia.wd5.myworkdayjobs.com", "careers.twosigma.com"]
+```
+
+`scripts/portal_sweep.py` lists new postings on these portals every run. If a run finds you signed out,
+it logs NEEDS HUMAN with the link instead of logging in. **Workday sessions expire within hours**, so
+Workday applications work best in an interactive session right after you sign in. Portals that need
+no account at all (Netflix, Millennium, Uber, Renaissance, D. E. Shaw) are applied to directly.
+
+**2. Emailed verification codes.** Some Greenhouse forms email an 8-character code after you click
+Submit. Without this add-on that application stops at NEEDS HUMAN. With it, `scripts/code_broker.py`
+reads the code from Gmail and pastes it into the page; the agent never sees the code or your password.
+It is used only for that post-submit check, never to log in anywhere. Setup, about two minutes:
+
+1. Turn on 2-Step Verification on your Google account, then create an app password at
+   <https://myaccount.google.com/apppasswords>.
+2. In **your own Terminal** (not through Claude), store it in the macOS Keychain:
+   ```bash
+   security add-generic-password -s jobapply-gmail-imap -a you@gmail.com -w
+   ```
+   Paste the app password at `password data for new item:`, press Enter, paste it again at
+   `retype password`, press Enter. Nothing shows while you paste; that is normal.
+3. Fill the `broker` block in `config/settings.json` (`gmail_account`, and optionally
+   `signup_email_pattern` like `you+{tag}@gmail.com`).
+4. Check it: `python3 scripts/code_broker.py check` prints `{"status": "ok"}` or says what is missing.
+
+Never paste the app password into a chat. `.claude/hooks/block-secret-read.sh` stops the agent's
+shell from reading the Keychain or clipboard, as a guardrail.
+
+**3. Your interview tracker.** If you track interviews in a note (Obsidian or any text file), set
+`run.interview_tracker_path` to its path and write each company as a `[[wikilink]]`. Every company in
+it becomes a hard skip, so a run never sends a second application to a company where you are mid-loop.
 
 ## Why this instead of a one-click apply tool
 
@@ -165,7 +211,10 @@ which companies rate-limit you per candidate, where seniority hides in body text
 are wrong, which postings contain prompt injection aimed at AI readers. Regenerate the board list
 any time with `./scripts/probe_boards.sh`.
 
-**Sourcing happens over JSON, not browsers.** It queries the ATS APIs, greps for experience gates
+**Sourcing happens over JSON, not browsers.** Three sweeps run each time: `delta_sweep.py` reads
+every known Greenhouse / Ashby / Lever board, `portal_sweep.py` reads company portals (Workday,
+Eightfold, Avature, Amazon, Google, Apple), and `list_sweep.py` reads the SimplifyJobs lists and six
+VC portfolio boards. It queries the ATS APIs, greps for experience gates
 and seniority language, checks the comp band, and only then opens a tab. Most candidates die before
 a browser is involved, which is what keeps a run cheap.
 
@@ -175,7 +224,7 @@ answer, a line in the log, a confirmation screenshot, and `state/status.md` as m
 ## What it will never do
 
 - Fabricate a fact about you. No invented salary, test score, address, or date.
-- Create an account or type a password.
+- Create an account, type a password, or log in, including with an emailed login code.
 - Solve an interactive CAPTCHA.
 - Submit a "please don't use AI" essay or a graded take-home. Filled up to that point, left open,
   flagged for you.
@@ -208,6 +257,12 @@ please-hire-me/
 ├── state/status.md           # the agent's memory between runs    (yours, gitignored)
 └── scripts/
     ├── schedule.sh           # install/remove the recurring run
+    ├── delta_sweep.py        # new reqs on every known Greenhouse/Ashby/Lever board
+    ├── portal_sweep.py       # new reqs on company portals (Workday, Eightfold, Avature, ...)
+    ├── list_sweep.py         # new reqs from SimplifyJobs lists and VC portfolio boards
+    ├── code_broker.py        # emailed verification codes, pasted without the agent seeing them
+    ├── tracker_companies.py  # companies in your interview tracker (hard skips)
+    ├── dupe_check.sh         # has this company been applied to already?
     ├── probe_boards.sh       # re-verify every ATS board
     └── scheduled_run.sh      # what the scheduler calls
 ```
@@ -242,9 +297,10 @@ it once and that class of block disappears forever.
 **My first run applied to less than the cap. Broken?** No. A fresh install has an empty queue, so
 the first run spends its time sourcing. It fills the queue as it goes and picks up speed.
 
-**Does it work on Workday / Taleo / iCIMS?** Mostly no, on purpose. Those need an account per
-company, which the agent will not create. Greenhouse, Lever, Ashby, and Workable cover most startups
-and AI labs.
+**Does it work on Workday / iCIMS / Avature / Eightfold?** Yes, once you sign in. Those portals need
+an account per company, which the agent will not create or log into. Sign in yourself in Chrome and
+list the portal in `channels.signed_in_portals` (see Optional add-ons). Workday sessions expire
+within hours, so expect NEEDS HUMAN on scheduled runs unless you sign in shortly before.
 
 **Can it run with my laptop closed?** No. It drives your real Chrome, so the machine has to be awake
 and Chrome has to be running.

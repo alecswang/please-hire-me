@@ -30,7 +30,9 @@ and login-free job boards. Applying happens only on the company's own ATS.
    "I'm not a robot" plus image puzzles) → those are NEEDS HUMAN. Passive reCAPTCHA v3 (no
    challenge, just a hidden score) is NOT a challenge: submit through it normally using genuine
    trusted input, which passes. Never fake behavior to beat a detector. Workday usually needs an
-   account, so expect to skip most Workday.
+   account, so expect to skip most Workday. Login codes count as passwords. The one code the agent may
+   enter is a post-Submit email verification code (Greenhouse), pasted through `scripts/code_broker.py`
+   without the agent seeing it. Procedure in CLAUDE.md under "Signed-in portals".
 3. **EEO, demographic, veteran, and disability questions** come from the presets in
    `config/answers.md`. No preset → decline to self-identify where the form allows it, otherwise
    NEEDS HUMAN.

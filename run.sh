@@ -26,6 +26,16 @@ else
   exit 127
 fi
 
+# The user's interview tracker (run.interview_tracker_path) is a hard-skip source. If it is set but
+# unreadable (iCloud evicted it, path moved), REFUSE TO RUN: a run that cannot see who the user is
+# interviewing with is exactly the run that applies there twice.
+TRACKER_PATH="$(python3 -c 'import json;print(json.load(open("config/settings.json")).get("run",{}).get("interview_tracker_path",""))' 2>/dev/null || true)"
+if [ -n "$TRACKER_PATH" ] && [ ! -r "$TRACKER_PATH" ]; then
+  echo "ERROR: run.interview_tracker_path is set but not readable: $TRACKER_PATH" >&2
+  echo "       Fix the path in config/settings.json (or download the file from iCloud) and rerun. Nothing was applied." >&2
+  exit 1
+fi
+
 # Turn config/settings.json into the sentences the agent has to obey this run.
 SETTINGS_PROMPT="$(MAX_OVERRIDE="${1:-}" python3 - <<'PY'
 import json, os
@@ -78,6 +88,19 @@ if t.get('priority_companies'):
                + ", ".join(t['priority_companies']) + ".")
 if t.get('skip_companies'):
     out.append("NEVER apply to: " + ", ".join(t['skip_companies']) + ".")
+tp = run.get('interview_tracker_path')
+if tp:
+    import subprocess
+    r = subprocess.run(['python3', 'scripts/tracker_companies.py'], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SystemExit(r.stderr.strip() or 'interview tracker unreadable')
+    cos = [c for c in r.stdout.splitlines() if c.strip()]
+    out.append("INTERVIEW TRACKER (the user's own file, read at launch): the user has an OA, an interview, "
+               "an open recruiter thread, or a rejection at EVERY one of these companies, so each is a HARD "
+               "SKIP that overrides the queue, the lifetime counter, and any fresh posting: "
+               + ", ".join(cos) + ". Match on the first word of the name (\"Acme Tech\" covers "
+               "Acme Technologies LLC). Before opening ANY tab run ./scripts/dupe_check.sh \"<Company>\" "
+               "and treat exit 3 as a hard skip.")
 for n in t.get('skip_notes', []):
     out.append(n)
 if el.get('needs_visa_sponsorship'):
@@ -135,6 +158,8 @@ Read and follow, in order: CLAUDE.md, config/settings.json, config/profile.json,
 RUN CONFIG (from config/settings.json, obey exactly): ${SETTINGS_PROMPT}
 
 METHOD: use the connected real Chrome through the Claude-in-Chrome extension and fill every field with trusted computer-tool input. Use file_upload for the resume and transcript. At the start, call tabs_context_mcp and close ONLY leftover job-application tabs inside your own MCP tab group from prior crashed runs; NEVER close, read, or navigate any tab that is not listed in your group, those are the user's personal tabs. Do the whole run in one reused tab, navigating it from posting to posting so no half-filled form is left behind. If the tab group drops mid-fill, reconnect via tabs_context_mcp, abandon the half-filled form rather than resuming it, and restart that company from a clean tab. Before exiting, close EVERY tab in your group with tabs_close_mcp and confirm tabs_context_mcp answers that no tab group exists.
+
+SOURCING: run python3 scripts/delta_sweep.py in the FOREGROUND with the Bash tool (timeout 540000), ONCE per run. Never run it in the background and never wait for a notification: a headless session ends when your turn ends. Never rebuild the sweep in /tmp; the script keeps its own cutoff in state/last_sweep.txt. A candidate row ending in FLYOUT promises an in-person final round; mention that as a plus. Also run python3 scripts/portal_sweep.py once (foreground): apply only to rows under AGENT MAY APPLY (a signed-in portal or a no-account portal; on a signed-in one confirm the signed-in header first), and copy every row under FOR YOU, BY HAND into the top of the run summary. Then run python3 scripts/list_sweep.py once (foreground): new postings from the SimplifyJobs lists and six VC portfolio boards, already filtered on location, start window, years and comp; judge each against targets.prestige_note, run the usual duplicate and eligibility checks, and apply on the company's own ATS. Never open a login page.
 
 SCOPE: verify every posting is live and check applications/, data/queue.md, and logs/applications-log.md for duplicates before opening a tab. A hard eligibility mismatch is a SKIP with a one-line log entry, not a NEEDS HUMAN. NEEDS HUMAN is only for a role the user is eligible for that is missing a fact they could supply. Never submit a weak target just to reach the cap; zero strong submissions beats one bad one.
 
