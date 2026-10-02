@@ -49,7 +49,8 @@ that shows it was real: customers, revenue, headcount, people served.]
 teaching, anything where the work happened with someone rather than at a desk alone.*
 
 [One paragraph about working with a real person or organization outside your own team: what you
-scoped, who you worked with, what changed for them, and how you know.]
+scoped, who you worked with, what changed for them, and how you know. If it was contract or client
+work, say so ("on a contract project for [CLIENT]"), not "at [CLIENT]".]
 
 ### Template D — evidence: research, analysis, or evaluation
 *A paper, a benchmark, a dataset, an audit, a market analysis, a clinical study, a policy memo.

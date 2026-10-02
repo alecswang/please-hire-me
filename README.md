@@ -259,7 +259,7 @@ answer, a line in the log, a confirmation screenshot, and `state/status.md` as m
 
 ## What it will never do
 
-- Fabricate a fact about you. No invented salary, test score, address, or date.
+- Fabricate a fact about you. No invented salary, test score, address, date, or employer.
 - Create an account, type a password, or log in, including with an emailed login code.
 - Solve an interactive CAPTCHA.
 - Submit a "please don't use AI" essay or a graded take-home. Filled up to that point, left open,

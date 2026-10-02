@@ -27,7 +27,8 @@ and login-free job boards. Applying happens only on the company's own ATS.
 
 ## Hard rules
 1. **Never fabricate.** Only facts from `config/profile.json` and `config/answers.md`. A required
-   field with no preset → log NEEDS HUMAN, leave the form, move on.
+   field with no preset → log NEEDS HUMAN, leave the form, move on. Who the user worked for is a
+   fact too: contract or client work stays "a contract project for X", never "at X".
 2. **Never create accounts, enter passwords, or solve interactive CAPTCHA challenges** (checkbox
    "I'm not a robot" plus image puzzles) → those are NEEDS HUMAN. Passive reCAPTCHA v3 (no
    challenge, just a hidden score) is NOT a challenge: submit through it normally using genuine

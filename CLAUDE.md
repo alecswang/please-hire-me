@@ -404,6 +404,9 @@ Never read the Keychain or the clipboard yourself; `.claude/hooks/block-secret-r
 Every value comes from `config/profile.json` and `config/answers.md`. Never guess, never invent.
 These decisions generalize across forms:
 
+- **Don't turn client or contract work into employment.** "At X" reads as a job at X. If the fact
+  sheet says the work was for a client, say so: "a contract project for X". Keep that when
+  shortening a template (issue #1).
 - Use the profile's `first_name` for a generic "First name" field and `legal_first_name` only when
   the field explicitly says legal.
 - **"Full legal name in native language / native characters"** (xAI asks for this) takes
