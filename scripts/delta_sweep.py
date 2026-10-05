@@ -57,9 +57,19 @@ for l in open(os.path.join(R, 'data', 'boards.md')):
 slugs = sorted(slugs)
 if LIMIT: slugs = slugs[:LIMIT]
 
-LOC = re.compile(r'san francisco|\bsf\b|bay area|palo alto|mountain view|menlo park|sunnyvale|san jose|redwood city|oakland|berkeley|san mateo|burlingame|foster city|santa clara|cupertino|emeryville|new york|\bnyc\b|brooklyn|manhattan|chicago|seattle|bellevue|kirkland|redmond|remote|united states|virginia|richmond|arlington|reston|mclean|herndon|tysons|fairfax|chantilly|alexandria|ashburn|sterling|vienna|falls church|glen allen|henrico|(?-i:\bVA\b)|pittsburgh|pennsylvania|(?-i:\bPA\b)|(?-i:,\s*(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b)|\busa?\b|north america|americas|\bhq\b', re.I)
-BADLOC = re.compile(r'london|toronto|canada|india|bangalore|bengaluru|berlin|paris|singapore|sydney|melbourne|tokyo|europe|emea|apac|mexico|brazil|israel|tel aviv|dublin|amsterdam|zurich|poland|warsaw|hong kong', re.I)
-USLOC = re.compile(r'(?-i:,\s*(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b)|new york|san francisco|seattle|chicago|united states|\bus\b|\busa\b', re.I)
+STATES = r'(?-i:,\s*(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b)'
+# Areas beyond the default set, matched only when targets.locations names them (same keys as list_sweep.py).
+EXTRA_LOC = {
+    'Virginia': r'virginia|richmond|arlington|reston|mclean|herndon|tysons|fairfax|chantilly|alexandria|ashburn|sterling|vienna|falls church|glen allen|henrico|(?-i:\bVA\b)',
+    'Pittsburgh': r'pittsburgh|pennsylvania|(?-i:\bPA\b)',
+    'Anywhere in US': STATES,
+}
+try: LOCS = json.load(open(os.path.join(R, 'config', 'settings.json')))['targets'].get('locations', [])
+except Exception: LOCS = []
+LOC = re.compile(r'san francisco|\bsf\b|bay area|palo alto|mountain view|menlo park|sunnyvale|san jose|redwood city|oakland|berkeley|san mateo|burlingame|foster city|santa clara|cupertino|emeryville|new york|\bnyc\b|brooklyn|manhattan|chicago|seattle|bellevue|kirkland|redmond|remote|united states|\busa?\b|north america|americas|\bhq\b'
+                 + ''.join('|' + EXTRA_LOC[l] for l in LOCS if l in EXTRA_LOC), re.I)
+BADLOC = re.compile(r'london|toronto|canada|india|bangalore|bengaluru|berlin|paris|singapore|sydney|melbourne|tokyo|europe|emea|apac|mexico|brazil|israel|tel aviv|dublin|amsterdam|zurich|poland|warsaw|hong kong|austria|egypt|british columbia', re.I)
+USLOC = re.compile(STATES + r'|new york|san francisco|seattle|chicago|united states|\bus\b|\busa\b', re.I)
 TIT = re.compile(r'engineer|developer|technical staff|\bmts\b|\bswe\b|programmer|\bintern\b|internship', re.I)
 # "staff" is a seniority word, but "Member of Technical Staff" is a title we want: strip that phrase first.
 BAD = re.compile(r'senior|\bsr\b|\bsr\.|principal|\blead\b|manager|director|head of|\bvp\b|architect|recruit|sales|account exec|designer|marketing|counsel|legal|finance|hardware|mechanical|electrical|firmware|\brf\b|analog|asic|fpga|verification|manufactur|technician|solutions engineer|support engineer|customer success|\biii\b|\biv\b|\bstaff\b', re.I)

@@ -452,15 +452,16 @@ instead of crawling search pages.
   start window (internship terms and seasons in titles), sponsorship, `minYearsExp` and the comp floor; the
   prestige gate is yours, per posting. Every row links to the company's own ATS. It also appends ATS slugs it
   has not seen to `data/slug-candidates.txt`, so `delta_sweep.py` reads those boards in full from the next run.
-- **`python3 scripts/linkedin_sweep.py`, once per run, foreground.** Postings under a day old from LinkedIn's public
-  guest search: one boolean query (`QUERY`, or `targets.linkedin_query`), newest first, with NO LinkedIn experience-level
-  filter, because LinkedIn tags most real entry roles "Not Applicable". Only two things drop a row: a
-  non-software title and a clearance (active, or any when `targets.skip_any_clearance`). Location, remote/on-site/hybrid
+- **`python3 scripts/linkedin_sweep.py`, once per run, foreground.** New postings since the last run (cutoff in
+  `state/last_linkedin_sweep.txt`) from LinkedIn's public guest search: one boolean query (`QUERY`, or `targets.linkedin_query`), newest first, with NO LinkedIn experience-level
+  filter, because LinkedIn tags most real entry roles "Not Applicable". Only these drop a row: a
+  non-software title, a term in `targets.skip_title_terms`, and a clearance (active, or any when `targets.skip_any_clearance`). Location, remote/on-site/hybrid
   and experience level are deliberately left untouched (the user's own search method); the `years` column is
   information for the agent, not a filter (`--selftest` checks the parser). LinkedIn is a
   SOURCE, never a channel: never sign in, never use Easy Apply. A `company-site` row means the posting applies on the
   employer's own site: find the same req there (ATS board API or careers portal) and apply on it. `easy-apply` rows
-  and staffing agencies are out of scope. LinkedIn rate-limits bursts (HTTP 429); the script backs off on its own.
+  and staffing agencies are out of scope. LinkedIn rate-limits bursts (HTTP 429); the script backs off on its own, stops at 7 minutes, and does not
+  advance its cutoff after a partial sweep.
 - Hacker News monthly hiring thread: `./scripts/fetch_hn_hiring.sh`. Startups that never post to a
   job board, roles link straight to the company ATS. Refill an empty queue from here first.
 

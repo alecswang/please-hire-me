@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LinkedIn sweep: new entry-level postings from LinkedIn's PUBLIC guest job search, no login.
 
-    python3 scripts/linkedin_sweep.py              # since state/last_linkedin_sweep.txt (default 36h), then advance it
+    python3 scripts/linkedin_sweep.py              # since state/last_linkedin_sweep.txt (default 24h), then advance it
     python3 scripts/linkedin_sweep.py --hours 48   # fixed window, does not advance the cutoff
     python3 scripts/linkedin_sweep.py --selftest   # run the parser checks and exit
 
@@ -9,10 +9,13 @@ LinkedIn is a SOURCE, never a channel: never sign in, never use Easy Apply. Each
 posting applies on the company's own site ("company-site") or only through Easy Apply ("easy-apply", out
 of scope). For a company-site row, find the same req on the company's ATS and apply there.
 
-Searches each targets.locations entry that has a LinkedIn location string (LOCATIONS below) for a few
-targets.roles keywords at LinkedIn's Entry level and Associate filters, then reads each posting and drops it only for a
-non-software title or a clearance. Location, remote/on-site/hybrid and experience level are never filtered.
-Prestige, staffing-agency and fit judgment stay with the agent. Run in the FOREGROUND.
+Searches each targets.locations entry that has a LinkedIn location string (LOCATIONS below) with one boolean
+query (QUERY, or targets.linkedin_query) and no LinkedIn experience-level filter, then reads each posting and drops it
+only for a non-software title, a title term in targets.skip_title_terms, or a clearance (active always; any clearance
+when targets.skip_any_clearance). Location, remote/on-site/hybrid and years of experience are never filtered: the
+years column is information, and the agent checks the years gate itself. Prestige, staffing-agency and fit judgment
+stay with the agent. Run in the FOREGROUND. Stops itself at DEADLINE; a partial or failed sweep does not advance
+the cutoff.
 Output: state/sweep/linkedin_cands.json and tab-separated rows on stdout.
 """
 import datetime, html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
@@ -21,6 +24,7 @@ R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CUT_FILE = os.path.join(R, 'state', 'last_linkedin_sweep.txt')
 OUT = os.path.join(R, 'state', 'sweep', 'linkedin_cands.json')
 UTC = datetime.timezone.utc
+DEADLINE = 420  # seconds, hard stop for the whole sweep (Bash tool timeout must exceed this)
 LOCATIONS = {  # targets.locations entry -> LinkedIn location string. Entries without one are not searched.
     'Virginia': 'Virginia, United States',
     'Pittsburgh': 'Pittsburgh, Pennsylvania, United States',
@@ -40,11 +44,12 @@ QUERY = ('("new grad" OR "entry level" OR "entry-level" OR "new graduate" OR ass
 # The keyword query matches the whole posting body, so non-software roles (field service, plant operations, clinical)
 # come back too. A title must name software work to survive.
 SOFT_TITLE = re.compile(r'software|developer|programmer|full.?stack|front.?end|back.?end|\bweb\b|application|\bapps?\b|data (?:engineer|scientist)|machine learning|\bml\b|\bai\b|robotics|\bqa\b|sdet|\btest(?:ing)? engineer|systems engineer|devops|automation engineer|\bit developer|systems analyst|technical solutions|applications? analyst|implementation (?:engineer|analyst)', re.I)
-# Titles the user has ruled out (targets.skip_title_terms in settings adds more): cloud-centric roles by default.
-SKIP_TITLE = re.compile(r'cloud|\baws\b|azure|\bgcp\b', re.I)
+# Title terms the user has ruled out, from targets.skip_title_terms (e.g. ["cloud", "aws", "azure"]). Empty by default.
+def skip_title_re(terms):
+    return re.compile('|'.join(r'\b' + re.escape(t) + r'\b' for t in terms), re.I) if terms else None
 YEARS = re.compile(r'(?<!\d)(\d{1,2})(?!\d)\s*\+?\s*(?:-|to|–)?\s*\d{0,2}\s*\+?\s*years?\b(?!\s*(?:of age|old))[^.]{0,60}?experience', re.I)
 ANY_CLEARANCE = re.compile(r'security clearance|TS/SCI|top secret|secret clearance|clearance (?:is )?required|(?:obtain|eligible for)[^.;]{0,30}clearance|polygraph', re.I)
-ACTIVE_CLEARANCE = re.compile(r'(active|current|must (?:hold|have|possess))[^;:]{0,40}?(clearance|TS/SCI|\bTS\b|top secret|secret)', re.I)
+ACTIVE_CLEARANCE = re.compile(r'(active|current|must (?:hold|have|possess))[^;:]{0,40}?(clearance|TS\s*(?:/|and|&)\s*SCI|top secret)', re.I)
 UA = {'User-Agent': 'Mozilla/5.0'}
 
 def text_of(page):
@@ -87,6 +92,9 @@ def selftest():
     assert needs_active_clearance('Active TS/SCI security clearance.')
     assert not needs_active_clearance('Ability to obtain a Secret clearance')
     assert not needs_active_clearance('obtain and maintain a security clearance at the TS/SCI level')
+    assert not needs_active_clearance('Must have experience with TS and React')
+    assert not needs_active_clearance('must have experience with secret management in Vault')
+    assert not needs_active_clearance('Current students with TypeScript (TS) skills')
     assert mentions_clearance('Ability to obtain a Secret clearance')
     assert mentions_clearance('must be able to obtain and maintain a security clearance')
     assert not mentions_clearance('Security Clearance Type: None/Not Required Security Clearance Status: Not Required')
@@ -95,8 +103,10 @@ def selftest():
         assert SOFT_TITLE.search(title), title
     for title in ('Operations Engineer', 'Early Career Field Service Engineer, Power & Water Solutions', 'Tele-Infectious Disease', 'Licensing Engineer (early career)', 'Mechanical Design Engineer', 'IT Support Specialist - Level 1', 'Payroll, Benefits & Expenses Coordinator'):
         assert not SOFT_TITLE.search(title), title
+    sk = skip_title_re(['cloud', 'aws', 'azure'])
     for title in ('AWS Cloud Infrastructure Experienced Associate', 'Cloud Engineer I', 'Junior Azure Developer'):
-        assert SKIP_TITLE.search(title), title
+        assert sk.search(title), title
+    assert not sk.search('Software Engineer, Payments') and skip_title_re([]) is None
     print('selftest ok')
 
 def main():
@@ -107,6 +117,8 @@ def main():
     skip = [c.lower() for c in T.get('skip_companies', [])]
     skip_any_clearance = T.get('skip_any_clearance', False)
     query = T.get('linkedin_query') or QUERY
+    skip_title = skip_title_re(T.get('skip_title_terms', []))
+    t0, ok = time.time(), True
     now = datetime.datetime.now(UTC)
     if '--hours' in args:
         since, advance = now - datetime.timedelta(hours=float(args[args.index('--hours') + 1])), False
@@ -121,9 +133,10 @@ def main():
     cards = {}
     for label, loc in locs:
         for start in range(0, 250, 25):  # newest first; stops at the last page
+            if time.time() - t0 > DEADLINE: ok = False; break
             q = urllib.parse.urlencode({'keywords': query, 'location': loc, 'f_TPR': f'r{window}', 'sortBy': 'DD', 'start': start})
             try: page = get('https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?' + q)
-            except Exception as e: print('search error', label, start, e); break
+            except Exception as e: print('search error', label, start, e); ok = False; break
             got = 0
             for card in page.split('<li>')[1:]:
                 g = lambda p: html.unescape(re.sub(r'\s+', ' ', (re.search(p, card, re.S) or [None, ''])[1])).strip()
@@ -142,7 +155,8 @@ def main():
         # Location, workplace type (remote/on-site/hybrid) and experience level are deliberately NOT filtered here:
         # the boolean query and the search location are the whole filter, the way a person searches by hand.
         # years is reported for the agent to read, never used to drop a row.
-        if not SOFT_TITLE.search(c['title']) or SKIP_TITLE.search(c['title']) or any(s in c['company'].lower() for s in skip): continue
+        if not SOFT_TITLE.search(c['title']) or (skip_title and skip_title.search(c['title'])) or any(s in c['company'].lower() for s in skip): continue
+        if time.time() - t0 > DEADLINE: ok = False; break
         try: page = get(f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{c['id']}")
         except Exception as e: print('detail error', c['id'], e); continue
         t = text_of(page)
@@ -159,10 +173,11 @@ def main():
     rows.sort(key=lambda c: (c['apply'] != 'company-site', c['area'], c['posted']), reverse=False)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     json.dump(rows, open(OUT, 'w'), indent=1)
-    print(f'{len(cards)} cards, {len(rows)} after software-title and clearance filters')
+    print(f'{len(cards)} cards, {len(rows)} after software-title and clearance filters  {time.time() - t0:.0f}s'
+          + ('' if ok else '  ★ PARTIAL (deadline or search errors); cutoff NOT advanced'))
     for c in rows:
         print('\t'.join(str(c[k]) for k in ('area', 'ago', 'company', 'title', 'location', 'years', 'pay', 'apply', 'url')))
-    if advance:
+    if advance and ok:
         open(CUT_FILE, 'w').write(now.isoformat(timespec='minutes').replace('+00:00', 'Z') + '\n')
 
 if __name__ == '__main__':
