@@ -58,3 +58,4 @@ venv/
 !config/settings.example.json
 !data/queue.example.md
 !data/sources.md
+data/interview-tracker.md

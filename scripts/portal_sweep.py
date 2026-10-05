@@ -29,6 +29,9 @@ WORKDAY = [  # (label, tenant, wd-host, site, host for signed_in_portals)
     ('Intel', 'intel', 'wd1', 'External', 'intel.wd1.myworkdayjobs.com'),
     ('Arrowstreet', 'arrowstreetcapital', 'wd5', 'Campus_Careers', 'arrowstreetcapital.wd5.myworkdayjobs.com'),
     ('G-Research', 'gresearch', 'wd103', 'G-Research', 'gresearch.wd103.myworkdayjobs.com'),
+    ('Capital One', 'capitalone', 'wd12', 'Capital_One', 'capitalone.wd12.myworkdayjobs.com'),
+    ('Mastercard', 'mastercard', 'wd1', 'Campus', 'mastercard.wd1.myworkdayjobs.com'),
+    ('Mastercard', 'mastercard', 'wd1', 'CorporateCareers', 'mastercard.wd1.myworkdayjobs.com'),
 ]
 # Portals whose apply form needs NO account (checked 2026-09-24, data/manual-portals.md): rows here are the
 # agent's to apply to, same as a signed-in portal.
@@ -36,10 +39,10 @@ OPEN_PORTALS = {'www.deshaw.com', 'explore.jobs.netflix.net', 'career.mlp.com', 
 AMAZON_QUERIES = ['software development engineer', 'software engineer university', 'sde 2027']
 WORKDAY_QUERIES = ['new college grad software', 'new college graduate software engineer', 'software engineer intern 2027']
 
-NEWGRAD = re.compile(r'\b(I|1)\b|university|grad|2027|entry|early career|campus|new college|intern', re.I)
+NEWGRAD = re.compile(r'\b(I|1)\b|university|grad|2027|entry|associate|development program|early career|campus|new college|intern', re.I)
 BAD = re.compile(r'senior|\bsr\b|principal|\blead\b|manager|director|architect|\bII\b|\bIII\b|hardware|asic|fpga|verification|\bqa\b|quality assurance|test engineer|sales|support', re.I)
 SOFT = re.compile(r'software|developer|engineer|machine learning|\bml\b|\bai\b', re.I)
-US = re.compile(r'\bUS\b|United States|, (WA|CA|NY|IL|TX|MA|VA|AZ|CO)\b', re.I)
+US = re.compile(r'\bUS\b|United States|, (WA|CA|NY|IL|TX|MA|VA|PA|AZ|CO)\b', re.I)
 
 def parse_ts(s):
     try:
@@ -176,7 +179,7 @@ for u, slug, jid in sorted(set(re.findall(r'href="(https://careers\.twosigma\.co
         if new_id('twosigma', jid):
             rows.append(['Two Sigma', 'careers.twosigma.com', 'new', tt, 'see title', u])
 
-US_STATES = re.compile(r'United States|\bUSA?\b|California|Washington|New York|Texas|Massachusetts|Illinois|Oregon|Colorado|Georgia|North Carolina|Virginia|Arizona|Florida|Remote', re.I)
+US_STATES = re.compile(r'United States|\bUSA?\b|California|Washington|New York|Texas|Massachusetts|Illinois|Oregon|Colorado|Georgia|North Carolina|Virginia|Pennsylvania|Arizona|Florida|Remote', re.I)
 def keep(t, loc):
     return NEWGRAD.search(t) and not BAD.search(t) and SOFT.search(t) and (US.search(loc or '') or US_STATES.search(loc or ''))
 def ts_date(ts):

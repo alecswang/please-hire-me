@@ -52,6 +52,9 @@ LOC_RULES = {  # targets.locations entry -> pattern over a posting location
     'New York': r'New York|\bNYC\b|Brooklyn|Manhattan',
     'Chicago': r'Chicago',
     'Seattle': r'Seattle|Bellevue|Redmond|Kirkland',
+    'Virginia': r'Virginia|Richmond|Arlington|Reston|McLean|Herndon|Tysons|Fairfax|Chantilly|Alexandria|Ashburn|Sterling|Vienna|Falls Church|Glen Allen|Henrico|(?-i:\bVA\b)',
+    'Pittsburgh': r'Pittsburgh|Pennsylvania|(?-i:\bPA\b)',
+    'Anywhere in US': r'United States|USA?|(?-i:,\s*(AL|AK|AZ|AR|CA|CO|CT|DE|DC|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b)',
     'Remote (US)': r'Remote.{0,20}(US|U\.S\.|United States|USA)|(US|USA|United States).{0,5}Remote|^Remote$',
 }
 LOC = re.compile('|'.join(LOC_RULES[l] for l in T.get('locations', []) if l in LOC_RULES), re.I)
