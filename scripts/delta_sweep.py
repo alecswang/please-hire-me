@@ -19,6 +19,11 @@ Boards come from data/boards.md (backticked slugs in column 2) plus data/slug-ca
 """
 import json, re, sys, os, time, datetime, urllib.request, concurrent.futures as cf
 
+# Windows pipes default stdout to the ANSI code page (cp1252), which cannot encode ★ or many company names. The
+# UnicodeEncodeError hit the summary print BEFORE the cutoff advanced, so every Windows sweep looked unfinished.
+# Always write UTF-8 and never die on a character.
+if hasattr(sys.stdout, 'reconfigure'): sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CUT_FILE = os.path.join(R, 'state', 'last_sweep.txt')
 OUT = os.path.join(R, 'state', 'sweep')

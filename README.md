@@ -115,6 +115,10 @@ One file, `config/settings.json`. The launcher turns it into the instructions th
 | Key | Does what |
 |---|---|
 | `run.max_applications_per_run` | Hard cap per run. Default 3. |
+| `run.daily_application_target` | Daily goal for **strong** applications, never a reason to lower the bar. Default 5. |
+| `run.max_applications_per_day` | Hard ceiling across all of a day's runs. Default 10. |
+| `sourcing.broad_sweeps` | `false` = no sweep scripts or multi-page scans; one employer board or narrow search at a time. |
+| `sourcing.rotate_methods` | Rotate sourcing methods instead of repeating the same search. |
 | `run.same_day_company_freeze` | Never open a second role at a company you applied to today. |
 | `schedule.frequency` | `manual`, `hourly`, `every-2-hours`, `every-3-hours`, `every-6-hours`, `daily`, `weekdays`. |
 | `targets.roles` | Titles to look for. |

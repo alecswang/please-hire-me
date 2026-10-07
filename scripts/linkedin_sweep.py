@@ -20,19 +20,63 @@ Output: state/sweep/linkedin_cands.json and tab-separated rows on stdout.
 """
 import datetime, html, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
 
+# Windows pipes default stdout to the ANSI code page (cp1252), which cannot encode the ★ markers or many company
+# names and raises UnicodeEncodeError mid-report. Always write UTF-8 and never die on a character.
+if hasattr(sys.stdout, 'reconfigure'): sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CUT_FILE = os.path.join(R, 'state', 'last_linkedin_sweep.txt')
 OUT = os.path.join(R, 'state', 'sweep', 'linkedin_cands.json')
 UTC = datetime.timezone.utc
 DEADLINE = 420  # seconds, hard stop for the whole sweep (Bash tool timeout must exceed this)
-LOCATIONS = {  # targets.locations entry -> LinkedIn location string. Entries without one are not searched.
-    'Virginia': 'Virginia, United States',
-    'Pittsburgh': 'Pittsburgh, Pennsylvania, United States',
-    'New York': 'New York, United States',
-    'Seattle': 'Seattle, Washington, United States',
-    'San Francisco Bay Area': 'San Francisco Bay Area',
-    'Chicago': 'Chicago, Illinois, United States',
+LOCATIONS = {  # targets.locations entry -> (LinkedIn location string, extra search params). Entries without one are not searched.
+    'Virginia': ('Virginia, United States', {}),
+    'Pittsburgh': ('Pittsburgh, Pennsylvania, United States', {}),
+    'New York': ('New York, United States', {}),
+    'Seattle': ('Seattle, Washington, United States', {}),
+    'San Francisco Bay Area': ('San Francisco Bay Area', {}),
+    'Chicago': ('Chicago, Illinois, United States', {}),
+    # Remote anywhere in the US: f_WT=2 is LinkedIn's "Remote" workplace filter. LinkedIn mislabels many on-site
+    # reqs as remote, so the agent still confirms remote on the employer's own posting.
+    'Remote (US)': ('United States', {'f_WT': '2'}),
+    # Western Wisconsin commute zone, no relocation. distance is miles; LinkedIn accepts 5/10/25/50/75/100.
+    'Eau Claire, WI': ('Eau Claire, Wisconsin, United States', {'distance': '25'}),
+    'Altoona, WI': ('Altoona, Wisconsin, United States', {'distance': '10'}),
+    'Chippewa Falls, WI': ('Chippewa Falls, Wisconsin, United States', {'distance': '10'}),
+    # Generic default center. Point it at your own town in the PRIVATE config/settings.json via
+    # targets.linkedin_location_overrides (see resolve_locations), so a home town never lands in committed code.
+    'Western Wisconsin': ('Eau Claire, Wisconsin, United States', {'distance': '25'}),
 }
+COMMUTE_MAX_MILES = 25  # no-relocation guard: a Wisconsin search wider than this would reach beyond a daily commute
+LINKEDIN_DISTANCES = {'5', '10', '25', '50', '75', '100'}  # the only radii LinkedIn accepts, in miles
+
+def check_location(label, loc, extra):
+    """Raise ValueError when a search entry is malformed or a Wisconsin radius exceeds COMMUTE_MAX_MILES."""
+    if not (isinstance(loc, str) and loc.strip() and isinstance(extra, dict)): raise ValueError(f'{label}: bad entry')
+    if not set(extra) <= {'f_WT', 'distance'}: raise ValueError(f'{label}: unknown params {sorted(set(extra) - {"f_WT", "distance"})}')
+    if 'distance' in extra and extra['distance'] not in LINKEDIN_DISTANCES:
+        raise ValueError(f'{label}: distance {extra["distance"]} not one of {sorted(LINKEDIN_DISTANCES, key=int)}')
+    if 'Wisconsin' in loc and not ('distance' in extra and int(extra['distance']) <= COMMUTE_MAX_MILES):
+        raise ValueError(f'{label}: Wisconsin search needs a distance of at most {COMMUTE_MAX_MILES} miles (no relocation)')
+
+def resolve_locations(T):
+    """LOCATIONS with targets.linkedin_location_overrides from settings.json applied on top, e.g.
+    {"Western Wisconsin": {"location": "<Town>, Wisconsin, United States", "distance": 25}}.
+    An override keeps the default's other params (such as f_WT) unless it sets them, and is validated
+    by check_location, so a private override cannot widen the commute radius."""
+    locs = dict(LOCATIONS)
+    for label, o in (T.get('linkedin_location_overrides') or {}).items():
+        if not isinstance(o, dict) or not set(o) <= {'location', 'distance', 'remote'}:
+            raise ValueError(f'{label}: override must be an object with location / distance / remote')
+        loc, extra = locs.get(label, ('', {}))
+        extra = dict(extra)
+        if 'distance' in o: extra['distance'] = str(o['distance'])
+        if 'remote' in o:
+            if o['remote']: extra['f_WT'] = '2'
+            else: extra.pop('f_WT', None)
+        locs[label] = (o.get('location', loc), extra)
+    for label, (loc, extra) in locs.items(): check_location(label, loc, extra)
+    return locs
 # One boolean query, no LinkedIn experience-level filter (f_E): LinkedIn tags most real entry roles at federal
 # contractors and regional employers "Not Applicable", so f_E=2,3 silently hid 42 of 56 fits in a 3-day test.
 # Level is judged from the posting text instead (req_years). Override with targets.linkedin_query.
@@ -107,6 +151,23 @@ def selftest():
     for title in ('AWS Cloud Infrastructure Experienced Associate', 'Cloud Engineer I', 'Junior Azure Developer'):
         assert sk.search(title), title
     assert not sk.search('Software Engineer, Payments') and skip_title_re([]) is None
+    for label, (loc, extra) in LOCATIONS.items(): check_location(label, loc, extra)
+    assert LOCATIONS['Remote (US)'] == ('United States', {'f_WT': '2'})
+    for label in ('Remote (US)', 'Eau Claire, WI', 'Altoona, WI', 'Chippewa Falls, WI', 'Western Wisconsin'):
+        assert label in LOCATIONS, label
+    assert resolve_locations({}) == LOCATIONS  # no overrides: defaults untouched
+    town = 'Sampletown, Wisconsin, United States'  # placeholder; real towns live only in settings.json
+    r = resolve_locations({'linkedin_location_overrides': {'Western Wisconsin': {'location': town, 'distance': 25}}})
+    assert r['Western Wisconsin'] == (town, {'distance': '25'}) and r['Eau Claire, WI'] == LOCATIONS['Eau Claire, WI']
+    assert resolve_locations({'linkedin_location_overrides': {'Western Wisconsin': {'location': town}}})['Western Wisconsin'] == (town, {'distance': '25'})
+    assert resolve_locations({'linkedin_location_overrides': {'Remote (US)': {'location': 'United States'}}})['Remote (US)'] == ('United States', {'f_WT': '2'})
+    for bad in ({'Western Wisconsin': {'location': town, 'distance': 50}},          # wider than a commute
+                {'Western Wisconsin': {'location': town, 'distance': 30}},          # not a LinkedIn radius
+                {'New Place': {'location': town}},                                  # Wisconsin with no radius at all
+                {'Western Wisconsin': {'location': town, 'radius': 10}},            # unknown key
+                {'Western Wisconsin': 'Sampletown'}):                               # not an object
+        try: resolve_locations({'linkedin_location_overrides': bad}); raise AssertionError(f'accepted {bad}')
+        except ValueError: pass
     print('selftest ok')
 
 def main():
@@ -127,14 +188,18 @@ def main():
     else:
         since, advance = now - datetime.timedelta(hours=24), True
     window = max(3600, int((now - since).total_seconds()))
-    locs = [(l, LOCATIONS[l]) for l in T.get('locations', []) if l in LOCATIONS]
+    try: LOCS = resolve_locations(T)
+    except ValueError as e: sys.exit(f'settings.json targets.linkedin_location_overrides rejected: {e}')
+    locs = [(l, LOCS[l]) for l in T.get('locations', []) if l in LOCS]
     print(f'window {window // 3600}h  locations {[l for l, _ in locs]}')
+    unsearched = [l for l in T.get('locations', []) if l not in LOCS]
+    if unsearched: print(f'WARNING: no LOCATIONS entry, NOT searched: {unsearched}')
 
     cards = {}
-    for label, loc in locs:
+    for label, (loc, extra) in locs:
         for start in range(0, 250, 25):  # newest first; stops at the last page
             if time.time() - t0 > DEADLINE: ok = False; break
-            q = urllib.parse.urlencode({'keywords': query, 'location': loc, 'f_TPR': f'r{window}', 'sortBy': 'DD', 'start': start})
+            q = urllib.parse.urlencode({'keywords': query, 'location': loc, 'f_TPR': f'r{window}', 'sortBy': 'DD', 'start': start, **extra})
             try: page = get('https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?' + q)
             except Exception as e: print('search error', label, start, e); ok = False; break
             got = 0

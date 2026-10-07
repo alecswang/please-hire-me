@@ -2,6 +2,9 @@
   "_readme": "Every knob the agent obeys. Copy to settings.json (setup.sh does this for you) and edit. Full docs: README.md#settings.",
   "run": {
     "max_applications_per_run": 3,
+    "daily_application_target": 5,
+    "max_applications_per_day": 10,
+    "_daily_note": "Target N STRONG applications per calendar day; hard ceiling max_applications_per_day, counted from logs/applications-log.md entries dated today (SUBMITTED only). The target is a goal, never a reason to lower the fit bar: when strong matches run out, stop for the day, even at 0. 0 means no target / no daily ceiling.",
     "one_application_per_company_per_run": true,
     "same_day_company_freeze": true,
     "max_applications_per_company_lifetime": 2,
@@ -35,6 +38,8 @@
       "Seattle",
       "Remote (US)"
     ],
+    "linkedin_location_overrides": {},
+    "_linkedin_location_overrides_note": "Optional, kept private here because settings.json is gitignored: replace or add LinkedIn search centers for scripts/linkedin_sweep.py, e.g. {\"Western Wisconsin\": {\"location\": \"Eau Claire, Wisconsin, United States\", \"distance\": 25}}. Keys are targets.locations entries; values take location, distance (miles: 5/10/25/50/75/100) and remote (true/false). Wisconsin searches are capped at 25 miles (no relocation).",
     "min_annual_comp_usd": 150000,
     "_min_annual_comp_note": "Applies to FULL-TIME roles only. Internships post hourly or monthly pay and would fail an annual floor, so they are judged by internship_min_hourly_usd instead.",
     "internship_min_hourly_usd": 0,
@@ -55,6 +60,11 @@
     "earliest_start": "2027-06",
     "latest_start": "2027-09",
     "graduation": "May 2027"
+  },
+  "sourcing": {
+    "broad_sweeps": true,
+    "rotate_methods": true,
+    "_note": "broad_sweeps false: do not run delta_sweep.py, portal_sweep.py or multi-page scans as a matter of course; source one employer board or one narrow search at a time and stop at the first strong match. rotate_methods: do not repeat the same search method back to back within a day; rotate between employer career pages / verified ATS boards (preferred), the sweep scripts, narrow LinkedIn searches, and Indeed (source only). Record the method used in state/status.md so the next run picks a different one."
   },
   "channels": {
     "allowed_ats": [

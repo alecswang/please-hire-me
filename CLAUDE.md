@@ -415,7 +415,15 @@ Read the gate from `config/settings.json` → `targets`. A role must clear it be
 compensation floor, allowed locations, seniority, years-of-experience ceiling, required
 sponsorship, and the user's own `prestige_note`. Skip lists and priority lists live there too.
 **Never submit a weak target just to reach the per-run cap.** Zero strong submissions beats one
-bad one.
+bad one. The same holds for `run.daily_application_target`: it is a goal, `run.max_applications_per_day`
+is a hard ceiling across all of the day's runs, and when strong matches run out you stop for the day.
+See `config/spec.md` → "Daily pacing".
+
+**Scam and data-harvesting screen.** Before opening a form and again before typing into it, run the
+checks in `config/spec.md` → "Scam and data-harvesting screen". Unverifiable employer, hidden client,
+money or equipment purchases, implausible pay → SKIP. A field asking for SSN, bank, card, government
+ID, date of birth or payment, or a recruiter on a free-mail domain → stop, leave it blank, NEEDS HUMAN
+— SCAM-CHECK. The agent never supplies sensitive financial or identity data.
 
 Hard eligibility mismatch (graduation window, years minimum, required stack, citizenship or
 clearance requirement, residency requirement) → SKIP and log one line. That is out of scope, not a
@@ -423,6 +431,13 @@ NEEDS HUMAN. NEEDS HUMAN is only for a role the user IS eligible for that is mis
 could supply.
 
 ## Sourcing method (fastest first)
+**Read `config/settings.json` → `sourcing` first.** When `broad_sweeps` is false, the "once per run"
+sweeps below are NOT run as a matter of course: work one employer board or one single-page search at a
+time and stop at the first strong match. When `rotate_methods` is true, do not repeat the same method
+back to back. Prefer employer career pages and verified ATS boards, and verify remote/location on the
+employer's own posting, never from a LinkedIn or Indeed label. Rules: `config/spec.md` → "Sourcing
+discipline".
+
 Start from `data/boards.md`, which lists the org slugs already verified live, and read
 `data/ats-field-notes.md` before opening any form. Then query the ATS board APIs from the shell
 instead of crawling search pages.
