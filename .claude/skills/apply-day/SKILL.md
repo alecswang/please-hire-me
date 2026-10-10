@@ -61,9 +61,17 @@ last status block used:
   commute radius around the home/search center configured in `config/settings.json`
   (`targets.locations`, `targets._locations_note`, and the `location` / `distance` entries in
   `targets.linkedin_location_overrides`). Hybrid/onsite outside that radius is out.
-- **E. Discovery only, LinkedIn and Indeed**: one narrow single-page search (`linkedin_sweep.py`,
-  the Indeed connector, or a single search page). A lead found here is applied to **only** on the
-  employer's own posting. Easy Apply / Indeed Quick Apply is never a channel.
+- **E. Discovery only, job sites in `sourcing.discovery_sources`**: one narrow single-page search on
+  one listed source (its `how`). A lead found here is applied to **only** on the employer's own
+  career page or verified ATS posting; the source's `never_use` one-click/Easy Apply flow and every
+  entry in `channels.blocked_aggregators` are never a channel.
+  - Each listed source is its own method for rotation: give them equal consideration and do not
+    default to the easiest one. Verify the req is live, and verify title, location/remote, salary,
+    years and employment type on the employer's posting; no third-party label is evidence.
+  - **Dedupe across sources**: the same company + title (+ req id) on several sources is ONE lead.
+    Once found, use the employer's direct application URL.
+  - A source marked `salary_estimates_are_not_posted_comp`: its salary figure may be logged as
+    context, but the comp gate (section 4) uses only the employer-posted range.
 
 Rules:
 - `sourcing.broad_sweeps` is false: no `delta_sweep.py`, no `portal_sweep.py`, no multi-page scans.
@@ -71,9 +79,27 @@ Rules:
   user first rather than running it.
 - **Never trust a third-party "remote" label.** Confirm remote/location, title, and requirements on
   the employer's own posting before anything else.
-- **Three bad leads in a row from one method → switch methods.** Two consecutive methods producing
-  nothing strong → count that toward "quality dried up" (section 9).
+- **`sourcing.cooldowns.bad_leads_before_switch` (3) bad, duplicate, stale, or mislabeled leads in a
+  row from one method or one discovery source → switch immediately.** Two consecutive methods
+  producing nothing strong → count that toward "quality dried up" (section 9).
+- **Source cooldowns** (`sourcing.cooldowns`; read and update the "Source cooldowns" table at the
+  top of `state/status.md`, one row per exact source with date and expiry):
+  - A board URL/slug confirmed invalid → record it; do not retry that exact source for
+    `invalid_source_days` (14). Other slug variants are separate sources.
+  - A valid board with zero matching junior/entry-level roles → record it; do not routinely
+    recheck it for `no_match_board_days` (7).
+  - Discovery sources are tracked separately from each other, by the same rules.
+  - A source exhausted during this run is never retried in the same run.
+  - The only early recheck: another discovery method surfaces a specific new job URL from that
+    company. Then check that one posting, and note the override in the status block.
+  - Drop expired rows when updating the table.
 - Work one lead at a time: find it, gate it, apply or skip, then find the next.
+- **Search order follows `targets.sourcing_priority`** (and `targets.preferred_platforms`) when
+  present: aim searches at the first stack, and work an earlier-priority strong lead first. A
+  priority, not a filter.
+- **`targets.company_rules`**: a company with `routine_sourcing: false` is never queried as a
+  sourcing step. A lead for it found by another method is considered only when every
+  `consider_only_if` condition holds, and the lifetime cap still applies.
 - Grep the posting body for `\d+\+? years`, senior, staff, lead, "at scale", clearance, relocat,
   travel, on-call, assessment, "AI". Read the surrounding context, not just the match.
 
@@ -91,7 +117,12 @@ From `config/settings.json` → `targets`, `eligibility`, and the skip notes:
 - **Employment type**: permanent full-time. Internships, contract-to-hire via unnamed client,
   commission-only, unpaid, training-repayment → SKIP.
 - **Technical fit**: the core required stack overlaps the skills in the `config/answers.md` fact
-  sheet. A required stack the user lacks → SKIP.
+  sheet. A required stack the user lacks → SKIP. A role where any entry of
+  `targets.platform_focus_skip` is a CORE responsibility → SKIP. The only exception: the role is
+  explicitly cross-platform AND the majority of its actual work strongly matches
+  `targets.strongest_stack`. Generic overlap (one shared language mentioned somewhere) does not
+  rescue it. The employer's product line alone is never a reason to skip a normal
+  web/backend/full-stack role.
 - **Company quality**: `targets.prestige_note`. Staffing/body shop with a hidden client, mostly
   sales/recruiting/non-dev work → SKIP. `targets.skip_companies` → SKIP.
 - **Duplicates**: `./scripts/dupe_check.sh "<Company>" [req-id]` (exit 3 = tracker HARD SKIP).
@@ -193,6 +224,8 @@ payment, government ID, passport, or date of birth.
   adding, check whether today's block already lists it; never write the same skip twice.
 - Keep the run's sourcing record (method, boards checked, slug 404s) in the status block so the next
   run rotates away from it.
+- Update the "Source cooldowns" table (section 3) for every invalid or no-match source found, with
+  the date and the expiry date.
 
 ## 9. End conditions (check after every lead)
 Stop when any is true:

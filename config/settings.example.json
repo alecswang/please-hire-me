@@ -47,6 +47,13 @@
     "prioritize_above_usd": 250000,
     "count_equity_toward_comp": true,
     "prestige_note": "One or two sentences describing what makes a company worth your time. The agent uses this as a judgment gate when a posting lists no salary band. Example: 'Only frontier AI labs, top-tier AI startups, or top quant firms. Skip ordinary enterprise software companies.'",
+    "sourcing_priority": [],
+    "preferred_platforms": [],
+    "strongest_stack": [],
+    "platform_focus_skip": [],
+    "_platform_focus_skip_note": "Platform/stack requirements you do not target (e.g. a mobile or OS ecosystem). A role where one is a CORE responsibility is skipped; the only exception is an explicitly cross-platform role whose majority of actual work strongly matches strongest_stack. Generic overlap (one shared language) does not rescue it. The employer's product line alone is never a reason to skip. sourcing_priority orders searches; it is not a filter.",
+    "company_rules": {},
+    "_company_rules_note": "Per-company overrides, e.g. {\"Acme\": {\"routine_sourcing\": false, \"consider_only_if\": [\"...\"]}}. routine_sourcing false = never query that board as a sourcing step.",
     "priority_companies": [],
     "skip_companies": [],
     "skip_notes": [
@@ -64,7 +71,19 @@
   "sourcing": {
     "broad_sweeps": true,
     "rotate_methods": true,
-    "_note": "broad_sweeps false: do not run delta_sweep.py, portal_sweep.py or multi-page scans as a matter of course; source one employer board or one narrow search at a time and stop at the first strong match. rotate_methods: do not repeat the same search method back to back within a day; rotate between employer career pages / verified ATS boards (preferred), the sweep scripts, narrow LinkedIn searches, and Indeed (source only). Record the method used in state/status.md so the next run picks a different one."
+    "_note": "broad_sweeps false: do not run delta_sweep.py, portal_sweep.py or multi-page scans as a matter of course; source one employer board or one narrow search at a time and stop at the first strong match. rotate_methods: do not repeat the same search method back to back within a day; rotate between employer career pages / verified ATS boards (preferred), the sweep scripts, narrow LinkedIn searches, and Indeed (source only). Record the method used in state/status.md so the next run picks a different one.",
+    "discovery_sources": [
+      { "name": "LinkedIn", "how": "scripts/linkedin_sweep.py or one public guest search page", "never_use": "LinkedIn Easy Apply" },
+      { "name": "Indeed", "how": "Indeed connector or one narrow search page", "never_use": "Indeed Quick Apply" },
+      { "name": "Glassdoor", "how": "one narrow single-page Glassdoor job search", "never_use": "Glassdoor Easy Apply / one-click apply", "salary_estimates_are_not_posted_comp": true }
+    ],
+    "_discovery_sources_note": "Job sites used ONLY to find leads, never to apply. Remove an entry to stop using that site, or add one with name/how/never_use. Every lead is verified on the employer's own career page or ATS posting before applying; third-party remote, location, salary, experience and employment-type labels are never trusted. Sources rotate with equal consideration, and the same company + title (+ req) across sources is one lead. salary_estimates_are_not_posted_comp: true marks a site whose salary figures are estimates; they may be logged as context, comp gates use the employer-posted range.",
+    "cooldowns": {
+      "invalid_source_days": 14,
+      "no_match_board_days": 7,
+      "bad_leads_before_switch": 3
+    },
+    "_cooldowns_note": "Source backoff, recorded in the 'Source cooldowns' table at the top of state/status.md with the date. invalid_source_days: an exact board URL/slug confirmed invalid is not retried for this long. no_match_board_days: a valid board with zero matching roles is not routinely rechecked for this long. bad_leads_before_switch: consecutive bad/duplicate/stale/mislabeled leads from one method or discovery source before switching immediately (tracked per source). An exhausted source is never retried in the same run; an early recheck is allowed only when another method surfaces a specific new job URL from that company."
   },
   "channels": {
     "allowed_ats": [
@@ -78,7 +97,8 @@
       "handshake",
       "linkedin easy apply",
       "simplify",
-      "indeed quick apply"
+      "indeed quick apply",
+      "glassdoor easy apply"
     ],
     "_why": "Aggregators need accounts and hide the real form. The agent applies on the company's own ATS only.",
     "signed_in_portals": [],
