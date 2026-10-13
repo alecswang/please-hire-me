@@ -130,7 +130,43 @@ One file, `config/settings.json`. The launcher turns it into the instructions th
 | `run.interview_tracker_path` | Your interview note; every company in it is skipped. See add-ons. |
 | `channels.signed_in_portals` | Portals where you are signed in and the agent may apply. See add-ons. |
 | `broker.*` | Gmail account for the emailed-code add-on. |
+| `documents.cover_letter` | Draft a cover letter when the form has a field for one. On by default. See below. |
+| `documents.tailor_resume` | Upload a resume reordered and trimmed for each posting. On by default. See below. |
 | `safety.*` | No accounts, no CAPTCHA solving, no fabricated facts, screenshot every submit. |
+
+### Cover letters and tailored resumes
+
+Both are on unless you set them to `false` under `documents` in `config/settings.json`.
+
+**Cover letters.** When a form has a cover-letter field, the agent drafts one of 150 to 250
+words. Research since LLMs arrived shows that matching the posting's words no longer sets a letter
+apart, so the letter is built from three other things:
+- a specific detail from the company's own site, not a paraphrase of the posting
+- one story from the "Stories" section of your `answers.md` that your resume doesn't tell
+- what you'd want to work on first
+
+Every claim traces to your files. `lint-letter` rejects em dashes, stock phrases recruiters flag as
+machine-written, and unsourced numbers. It also warns when a sentence restates your resume or
+echoes the posting. The letter goes into the form's box or upload, and a copy stays in
+`applications/files/`. No field means no letter.
+
+**Tailored resumes.** Setup converts your PDF into LaTeX using
+[Jake's Resume](https://github.com/jakegut/resume), the template most software resumes on Overleaf
+use. It checks the conversion word by word against your original. If you already keep a `.tex`,
+point `resume_tailor_base` in `config/profile.json` at it instead. Per posting, the agent:
+
+- sorts the posting's terms into what you have, what your fact sheet supports, and the gaps
+- puts your most relevant work first
+- rewrites bullets result-first with your real numbers, in the posting's vocabulary
+- cuts what doesn't matter for that role
+- builds a one-page PDF
+
+It never adds a skill, a number, or a title. `check-resume` fails on any term or number that is in
+neither your resume nor your fact sheet. `render-resume` fails on text past the margin, page
+overflow, text dropped by a bad escape, and ligature glyphs that ATS parsers misread. Needs
+`brew install tectonic poppler`, which setup offers to run.
+
+Rules for both: [`config/documents.md`](config/documents.md).
 
 Run it on a schedule:
 
@@ -244,7 +280,8 @@ please-hire-me/
 │   ├── settings.json         # run knobs and target criteria      (yours, gitignored)
 │   ├── profile.json          # every field value an ATS asks for  (yours, gitignored)
 │   ├── answers.md            # free-text templates + fact sheet   (yours, gitignored)
-│   └── spec.md               # the run contract: rules, procedure, log format
+│   ├── spec.md               # the run contract: rules, procedure, log format
+│   └── documents.md          # cover letter + resume tailoring rules
 ├── data/
 │   ├── queue.md              # vetted targets, worked top-down    (yours, gitignored)
 │   ├── sources.md            # where to find roles: job lists, AI labs, quant, fellowships
@@ -261,6 +298,7 @@ please-hire-me/
     ├── portal_sweep.py       # new reqs on company portals (Workday, Eightfold, Avature, ...)
     ├── list_sweep.py         # new reqs from SimplifyJobs lists and VC portfolio boards
     ├── code_broker.py        # emailed verification codes, pasted without the agent seeing them
+    ├── app_docs.py           # resume conversion, keywords, tailoring checks, PDF builds
     ├── tracker_companies.py  # companies in your interview tracker (hard skips)
     ├── dupe_check.sh         # has this company been applied to already?
     ├── probe_boards.sh       # re-verify every ATS board

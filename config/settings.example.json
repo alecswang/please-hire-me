@@ -15,6 +15,15 @@
     "frequency": "manual",
     "_frequency_options": "manual | hourly | every-2-hours | every-3-hours | every-6-hours | daily | weekdays"
   },
+  "documents": {
+    "cover_letter": true,
+    "_cover_letter_note": "When a form has a cover-letter field (text box or upload, required or optional), draft one from your fact sheet, lint it, and put it there. No field, no letter. Saved to applications/files/<company>-<role>/. false: draft nothing and leave optional cover-letter fields blank. Rules: config/documents.md.",
+    "tailor_resume": true,
+    "_tailor_resume_note": "Upload a one-page LaTeX resume rewritten for each posting: most relevant work first, result-first bullets, the posting's spelling for skills you have. Only facts from your base resume and fact sheet; a check rejects any other number or term. Needs profile.json resume_tailor_base and tectonic + poppler (setup installs them). false: always upload the default resume. Rules: config/documents.md.",
+    "resume_max_pages": 1,
+    "cover_letter_min_words": 150,
+    "cover_letter_max_words": 250
+  },
   "targets": {
     "roles": [
       "software engineer",

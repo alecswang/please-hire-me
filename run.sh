@@ -41,7 +41,7 @@ SETTINGS_PROMPT="$(MAX_OVERRIDE="${1:-}" python3 - <<'PY'
 import json, os
 s = json.load(open('config/settings.json'))
 run, t, el = s.get('run', {}), s.get('targets', {}), s.get('eligibility', {})
-ch, sf = s.get('channels', {}), s.get('safety', {})
+ch, sf, docs = s.get('channels', {}), s.get('safety', {}), s.get('documents', {})
 out = []
 mx = os.environ.get('MAX_OVERRIDE') or run.get('max_applications_per_run', 3)
 out.append(f"Submit at most {mx} new applications this run, then exit.")
@@ -132,6 +132,20 @@ if sf.get('require_log_before_submit', True):
     out.append("Before clicking submit, append the full question-and-answer log to "
                "logs/applications-log.md and write applications/<company>-<role>.md with every "
                "question, every answer, the URL, and today's date.")
+if docs.get('cover_letter', True):
+    out.append("COVER LETTERS ARE ON: when a form has a cover-letter field (text box or upload, required or "
+               "optional), draft one from the fact sheet following config/documents.md and run "
+               "scripts/app_docs.py lint-letter until it prints OK. No field, no letter. Never draft one "
+               "where the form forbids AI.")
+else:
+    out.append("Cover letters are OFF: draft none; leave optional cover-letter fields blank.")
+if docs.get('tailor_resume', True):
+    out.append("RESUME TAILORING IS ON: per application, follow config/documents.md: save the posting, run "
+               "scripts/app_docs.py keywords, tailor a copy of profile.json resume_tailor_base, pass "
+               "check-resume --jd and render-resume, look at the PDF, and upload it. Never add a fact. "
+               "If resume_tailor_base is missing, upload the default resume.")
+else:
+    out.append("Resume tailoring is OFF: upload the default resume from profile.json unchanged.")
 print(" ".join(out))
 PY
 )"
@@ -153,7 +167,7 @@ trap 'rm -rf "$LOCK_DIR" 2>/dev/null || true' EXIT
 
 PROMPT="Continue the job application run in $(pwd). This is a fresh session: derive all durable state from repository files, not from chat history.
 
-Read and follow, in order: CLAUDE.md, config/settings.json, config/profile.json, config/answers.md, config/spec.md, data/queue.md, state/status.md, and logs/applications-log.md.
+Read and follow, in order: CLAUDE.md, config/settings.json, config/profile.json, config/answers.md, config/spec.md, config/documents.md, data/queue.md, state/status.md, and logs/applications-log.md.
 
 RUN CONFIG (from config/settings.json, obey exactly): ${SETTINGS_PROMPT}
 

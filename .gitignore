@@ -14,6 +14,7 @@ data/*.doc
 data/*.docx
 data/*.png
 data/*.jpg
+data/resume.tex
 
 # Your working target list and private research
 data/queue.md
@@ -57,5 +58,6 @@ venv/
 !config/answers.example.md
 !config/settings.example.json
 !data/queue.example.md
+!data/resume.example.tex
 !data/sources.md
 data/interview-tracker.md

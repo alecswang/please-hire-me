@@ -9,7 +9,8 @@ account, and never apply to something the user is not eligible for.
 2. `config/settings.json` (the run knobs: how many applications, what counts as a target).
 3. `config/profile.json` (every field value, verbatim).
 4. `config/answers.md` (free-text templates + the fact sheet, the only source for prose answers).
-5. `config/spec.md` (hard rules, per-application procedure, log format).
+5. `config/spec.md` (hard rules, per-application procedure, log format) and
+   `config/documents.md` (cover letters and resume tailoring, both on by default).
 6. `data/queue.md` (vetted targets, worked top-down), `data/sources.md` (where to find more),
    `data/boards.md` (live ATS org slugs with job counts), and `data/ats-field-notes.md`
    (company limits, hidden seniority gates, slug traps, injection canaries).
@@ -30,7 +31,9 @@ only if the user asks for a hands-off or non-interactive path.
    `config/{profile,settings}.json`, `config/answers.example.md` → `config/answers.md`,
    `data/queue.example.md` → `data/queue.md`. Create `applications/ logs/ screenshots/ state/`.
 2. **Ask for their resume** and read it (the Read tool opens PDFs). Copy it to the path in
-   `profile.json.resume`, default `data/resume.pdf`.
+   `profile.json.resume`, default `data/resume.pdf`. While reading, note every bullet that has no
+   number; they go into the question list in step 4. Check for `tectonic` and `pdftotext`, which
+   resume tailoring needs.
 3. **Draft `config/profile.json` from the resume**: name, email, phone, location, school, degree,
    major, graduation, GPA, LinkedIn, GitHub, site. Then **show every extracted value and have the
    user confirm or correct each one.** If the resume does not state something, leave it empty and
@@ -47,7 +50,9 @@ only if the user asks for a hands-off or non-interactive path.
    forget is exactly how a second round happens, which is the thing this rule exists to prevent.
    Keys that ship with a working default (desired compensation, how they heard about the company,
    notice period) are NOT questions: apply the default, say in one line which defaults you took,
-   and move on. `highest_education_completed_answer` is one of these: derive it from the resume as
+   and move on. Cover letters and resume tailoring are among these: both are on by default, so say
+   so in the defaults line and point at `documents.*` in `settings.json` to turn either off.
+   `highest_education_completed_answer` is one of these: derive it from the resume as
    the degree in progress with its expected date, never as high school, and state what you wrote.
 
    Two exceptions to the default-instead-of-question rule. **The three availability answers
@@ -72,6 +77,15 @@ only if the user asks for a hands-off or non-interactive path.
      remote counts; full-time compensation floor; internship hourly floor; their quality bar in
      their own words (`prestige_note`); companies to never apply to. Say that the annual floor does
      not apply to internships, since that surprises people.
+   - *About documents (both toggles default on, so these are the only questions):* whether they
+     keep their resume as LaTeX, for example an Overleaf export (optional; default: you convert
+     the PDF into Jake's Resume template); for each bullet with no number, a real number if they
+     know one (optional; skipping leaves the bullet as is); and, if `tectonic` or `pdftotext` is
+     missing, whether you may run `brew install tectonic poppler` (default yes); two or three
+     short stories about the work they'd most want to discuss, meaning why they did it and the hard
+     part or a decision (optional; without them cover letters can only rearrange resume facts);
+     and a paragraph they wrote themselves as a voice sample (optional). Both go into
+     `answers.md`, "Stories" and "Voice sample".
 
    Follow up ONLY on an answer that came back blank, self-contradictory, or unusable, and say that
    it is the last of it. **A field you forgot to ask about is not grounds for a second round.**
@@ -99,6 +113,11 @@ only if the user asks for a hands-off or non-interactive path.
    > off and I will rewrite it."
    Quote the actual figures from their drafts, not these. The point is that they are checking
    claims they can verify, not judging prose.
+5b. **Build the resume base** per `config/documents.md`, "Setup: turning a PDF resume into the
+   base": transcribe the PDF word for word into `data/resume.tex` (or point `resume_tailor_base`
+   at their own `.tex`), pass `verify-conversion` and `render-resume`, then show them the PDF
+   beside their original and get a yes. Numbers they gave for bare bullets go into the fact
+   sheet, never into the base.
 6. **Offer to install the schedule**, explain the cadence, and if they say yes run
    `./scripts/schedule.sh install` for them rather than printing it for them to run.
 6b. **Mention the optional add-ons in one short list, and do not push them.** Each needs a step only the
@@ -173,16 +192,20 @@ please-hire-me/
 │   ├── settings.json         # run knobs: cap per run, target criteria, safety toggles
 │   ├── spec.md               # run spec: rules, procedure, log format (follow exactly)
 │   ├── profile.json          # all profile field values — use verbatim, never guess
-│   └── answers.md            # free-text templates + fact sheet + writing style
+│   ├── answers.md            # free-text templates + fact sheet + writing style
+│   └── documents.md          # cover letter + resume tailoring rules (toggles in settings.json)
 ├── data/
 │   ├── queue.md              # vetted targets + "already applied" tracker (working checklist)
 │   ├── sources.md            # WHERE TO FIND MORE TARGETS — job lists, AI programs, quant,
 │   │                         #   fellowships, VC boards, timing calendar. Refill queue.md from here.
 │   ├── boards.md             # verified-live ATS org slugs + job counts. Start sourcing here.
 │   ├── ats-field-notes.md    # per-candidate application limits, hidden gates, slug traps
-│   └── resume.pdf            # the resume (uploads read from here; path set in profile.json)
+│   ├── resume.pdf            # the resume (uploads read from here; path set in profile.json)
+│   ├── resume.example.tex    # Jake's Resume (Overleaf), adapted for clean ATS text
+│   └── resume.tex            # the user's resume as LaTeX, the tailoring base
 ├── applications/             # ONE doc per application — full Q&A + date applied + status
-│   └── <company>-<role>.md
+│   ├── <company>-<role>.md
+│   └── files/<company>-<role>/  # posting.txt, tailored resume.tex + PDF, cover letter
 ├── logs/
 │   └── applications-log.md   # running summary/tracker (date + status per app); summary at top
 ├── state/
@@ -190,6 +213,7 @@ please-hire-me/
 ├── scripts/
 │   ├── schedule.sh           # install/remove the recurring run (launchd or cron)
 │   ├── code_broker.py        # emailed one-time code → concealed clipboard; agent never sees it
+│   ├── app_docs.py           # resume conversion check, keywords, tailoring checks, PDF builds
 │   └── resume_server.py      # legacy localhost helper for resume upload
 └── screenshots/              # per-submit confirmation records
 ```
@@ -229,7 +253,10 @@ Bootstrap 127.0.0.1:8765 → window.name → navigate to ATS → decode → Data
 input.files → dispatch input+change.
 
 ### 3. Fill flow per form
-Navigate → upload resume → screenshot → for each field: `computer` left_click then `type` (text)
+Before the tab: build this posting's tailored resume per `config/documents.md` (when
+`documents.tailor_resume` is on; a missing key is on). Draft a cover letter only once the form
+is open and shows a cover-letter field. Then:
+Navigate → upload resume (the tailored PDF when there is one) → screenshot → for each field: `computer` left_click then `type` (text)
 or click (radio/checkbox/button) → for searchable dropdowns click the search box, `type` to
 filter, click the option → verify 0 `aria-invalid` via a read-only `javascript_tool` eval →
 write the log entry and the per-application doc → `computer` left_click Submit → confirm result →
@@ -396,6 +423,8 @@ These decisions generalize across forms:
   declines to name a number rather than inventing one.
 - "Family or partner works at this company" defaults to No unless the profile says otherwise. Do
   not interrupt a batch to ask; report unusual wording at the end of the run.
+- Cover letters and tailored resumes follow `config/documents.md`. They add no facts: the posting
+  decides what to emphasize, the fact sheet decides what is true.
 - Free-text: adapt a template from `config/answers.md`. Keep it 40-80 words, first person, no em
   dashes, no buzzwords.
 - **A graded work-sample or a "please don't use AI" essay is NEEDS HUMAN.** So is a question that

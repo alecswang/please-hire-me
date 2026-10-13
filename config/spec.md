@@ -19,6 +19,8 @@ Read from `config/settings.json`:
 - `eligibility.*` — sponsorship need, start window, graduation.
 - `channels.*` — which ATS platforms are allowed, which aggregators are banned.
 - `safety.*` — the hard rules below.
+- `documents.*` — cover letter and resume tailoring toggles, both on by default. Rules and
+  procedure: `config/documents.md`.
 
 Sources for finding roles: company career pages (Greenhouse / Lever / Ashby / Workable preferred)
 and login-free job boards. Applying happens only on the company's own ATS.
@@ -56,8 +58,11 @@ and login-free job boards. Applying happens only on the company's own ATS.
 1. Find the posting. Confirm the role matches `targets`, is not on the skip list, and is not
    already in `applications/` / `data/queue.md` / `logs/applications-log.md`. Verify the URL is
    LIVE — postings rot within days, and a req id from a previous run can be dead.
-2. Upload the resume from the path in `config/profile.json` using `file_upload`. Pick the closest
-   template in `config/answers.md` for any free text.
+2. Build the documents (`config/documents.md`). When `documents.tailor_resume` is on, tailor,
+   check, and render the resume. When `documents.cover_letter` is on and the form has a cover-letter field, draft and lint the letter.
+   Upload the resume with `file_upload`: the tailored PDF, or the path in `config/profile.json`
+   when tailoring is off or `resume_tailor_base` is missing. Pick the closest template in
+   `config/answers.md` for any free text.
 3. Fill EVERY field with the `computer` tool (trusted input) on the real Chrome. Presets only.
 4. Verify 0 invalid required fields (`aria-invalid`) and dump the field values with a read-only
    eval. BEFORE submit: append the log line to `logs/applications-log.md` AND write
@@ -85,7 +90,8 @@ ALWAYS record the date applied. ALWAYS keep a per-application doc in `applicatio
 ```
 ### [timestamp] Company — Role — STATUS
 - URL:
-- Resume used:
+- Resume used: (path; when tailored, one line per change)
+- Cover letter: (text box / upload / no field / off)
 - Questions & answers:
   - Q: ... A: ...
 ```

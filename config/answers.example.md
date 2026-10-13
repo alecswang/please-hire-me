@@ -69,6 +69,19 @@ them. Include exact numbers; they are what make an answer credible.
 - [Tools, languages, systems, or methods you actually use.]
 - [Anything else a form has asked you about before: leadership, volunteering, awards.]
 
+## Stories (what cover letters are built from)
+A cover letter has to say something the resume doesn't, and the agent can't invent it. Give it two
+or three short stories, in your own words, about the work you would most want to talk about in an
+interview. Each one: why you took it on, the hard part or the decision you made, and what you'd do
+differently. Two to four sentences each. Without this section, letters can only rearrange resume
+facts, and they read that way.
+
+- [Project or job]: [why, the hard part or decision, what you learned. Your words.]
+
+## Voice sample (optional)
+Paste a paragraph or two you wrote yourself: an email, an essay, a post. The agent matches its
+rhythm and word choice so the letter sounds like the person who will show up to the interview.
+
 ## Preset legal / EEO answers
 The agent may only answer legal, visa, and demographic questions from presets. No preset means
 NEEDS HUMAN, every time.

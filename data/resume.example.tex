@@ -1,0 +1,131 @@
+%-------------------------------------------------------------------------------------------------
+% Base resume for please-hire-me. Jake's Resume, the most used software-engineering template on
+% Overleaf: https://github.com/jakegut/resume (MIT, Jake Gutierrez, based on sb2nov/resume).
+%
+% Changes from the original, all for ATS parsing under tectonic (XeTeX):
+%   * Fonts load through fontspec with Ligatures=NoCommon, so the text layer says "fi", "ff",
+%     "fl" instead of ligature glyphs that ATS parsers drop or garble. Same Latin Modern look.
+%   * pdfTeX-only \input{glyphtounicode} / \pdfgentounicode are guarded.
+%
+% Setup copies this to data/resume.tex and fills it from your resume, word for word. The agent
+% never edits data/resume.tex during a run. Per job it copies it to applications/files/<slug>/,
+% tailors the copy, and builds it with `python3 scripts/app_docs.py render-resume`.
+%
+% Write special characters escaped: \% \$ \& \# \_ . An unescaped % silently deletes the rest of
+% the line; render-resume catches it, but only after the fact.
+%-------------------------------------------------------------------------------------------------
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontspec}
+\setmainfont{lmroman10-regular.otf}[
+  BoldFont = lmroman10-bold.otf,
+  ItalicFont = lmroman10-italic.otf,
+  BoldItalicFont = lmroman10-bolditalic.otf,
+  SmallCapsFont = lmromancaps10-regular.otf,
+  Ligatures = {TeX, NoCommon}]
+\ifdefined\pdfgentounicode \input{glyphtounicode}\pdfgentounicode=1 \fi
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+%-------------------------------------------------------------------------------------------------
+% Commands. The agent relies on these names: one \resumeItem per bullet, one \resumeSubheading
+% per job, one \resumeProjectHeading per project.
+\newcommand{\resumeItem}[1]{\item\small{{#1 \vspace{-2pt}}}}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------------------------------------------------------------
+\begin{document}
+
+\begin{center}
+  \textbf{\Huge \scshape Firstname Lastname} \\ \vspace{1pt}
+  \small 555-123-4567 $|$ \href{mailto:you@example.com}{\underline{you@example.com}} $|$
+  \href{https://linkedin.com/in/yourhandle}{\underline{linkedin.com/in/yourhandle}} $|$
+  \href{https://github.com/yourhandle}{\underline{github.com/yourhandle}}
+\end{center}
+
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Your University}{City, ST}
+      {Bachelor of Science in Computer Science}{Aug 2023 -- May 2027}
+  \resumeSubHeadingListEnd
+
+\section{Experience}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Organization}{May 2026 -- Aug 2026}
+      {Title, exactly as on your resume}{City, ST}
+      \resumeItemListStart
+        \resumeItem{Bullet copied from your resume word for word, numbers included}
+        \resumeItem{Second bullet}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+\section{Projects}
+  \resumeSubHeadingListStart
+    \resumeProjectHeading
+      {\textbf{Project Name} $|$ \emph{Tool, Tool, Tool}}{Jan 2026 -- Apr 2026}
+      \resumeItemListStart
+        \resumeItem{Bullet}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+\section{Technical Skills}
+  \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+      \textbf{Languages}{: Python, TypeScript} \\
+      \textbf{Frameworks}{: React, Node.js} \\
+      \textbf{Developer Tools}{: Git, Docker}
+    }}
+  \end{itemize}
+
+\end{document}
