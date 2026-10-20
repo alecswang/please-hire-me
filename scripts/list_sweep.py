@@ -2,7 +2,7 @@
 """List sweep: new postings from the curated job lists and VC portfolio boards in data/sources.md.
 
     python3 scripts/list_sweep.py            # since state/last_list_sweep.txt, then advance it
-    python3 scripts/list_sweep.py --dry      # do not advance the cutoff or touch slug-candidates.txt
+    python3 scripts/list_sweep.py --dry      # do not advance the cutoff or touch slug-candidates.txt (alias: --no-advance)
     python3 scripts/list_sweep.py --since 2026-09-20T00:00Z
 
 Sources:
@@ -65,7 +65,7 @@ def parse_ts(s):
         return d if d.tzinfo else d.replace(tzinfo=UTC)
     except Exception: return None
 
-args = sys.argv[1:]; dry = '--dry' in args
+args = sys.argv[1:]; dry = '--dry' in args or '--no-advance' in args
 since = args[args.index('--since') + 1] if '--since' in args else None
 CUT = parse_ts(since) if since else (parse_ts(open(CUT_FILE).read()) if os.path.exists(CUT_FILE) else datetime.datetime.now(UTC) - datetime.timedelta(days=3))
 if not CUT: sys.exit('bad cutoff')

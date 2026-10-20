@@ -3,7 +3,7 @@
 Lever and SmartRecruiters board (Workable only via --ats wk, it rate-limits), then apply the title and location filters.
 
     python3 scripts/delta_sweep.py              # since state/last_sweep.txt, then advance it
-    python3 scripts/delta_sweep.py --dry        # same, but do not advance the cutoff
+    python3 scripts/delta_sweep.py --dry        # same, but do not advance the cutoff (alias: --no-advance)
     python3 scripts/delta_sweep.py --since 2026-09-15T04:00Z
 
 RUN IT IN THE FOREGROUND. A headless run that backgrounds this and "waits for the notification"
@@ -31,7 +31,7 @@ def parse_ts(s):
     except Exception: return None
 
 args = sys.argv[1:]
-dry = '--dry' in args
+dry = '--dry' in args or '--no-advance' in args
 since = args[args.index('--since') + 1] if '--since' in args else None
 ONLY = args[args.index('--ats') + 1].split(',') if '--ats' in args else None      # e.g. --ats sr,wk (testing)
 LIMIT = int(args[args.index('--limit') + 1]) if '--limit' in args else None      # probe only the first N slugs (testing)

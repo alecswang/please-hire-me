@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-black.svg)](CONTRIBUTING.md)
 [![Runs on Claude Code](https://img.shields.io/badge/runs%20on-Claude%20Code-black.svg)](https://claude.com/claude-code)
+[![Runs on Grok Bot](https://img.shields.io/badge/runs%20on-Grok%20Bot-black.svg)](#run-it-with-grok-bot)
 [![macOS | Linux](https://img.shields.io/badge/macOS-%7C%20Linux-black.svg)](#quick-start)
 
 You set it up once, in one conversation of about five minutes, and it writes your config from your
@@ -90,6 +91,34 @@ with nobody there to approve. Instead, open the repo in Claude Code and ask for 
 before submitting. You get the same checkpoint as the first application, every time.
 
 </details>
+
+## Run it with Grok Bot
+
+No Claude Code, no Chrome extension, no cron. Grok Bot has its own computer and its own browser,
+so it clones the repo, runs setup with you in chat, and applies from there. Your laptop can be
+closed.
+
+**New to Grok Bot?** Open <GROK_BOT_TEMPLATE_LINK>. It gives you your own bot, already set up for
+please-hire-me. Attach your resume and say *"set me up"*.
+
+**Already use Grok Bot?** Send it this, with your resume PDF attached:
+
+> Set me up with please-hire-me: clone https://github.com/alecswang/please-hire-me, follow
+> GROKBOT.md, here's my resume.
+
+Then it runs the same setup as Quick start: it reads your resume, shows you every value it pulled
+out, asks **one list** of questions, and drafts your answers for you to approve. It never invents a
+fact about you.
+
+**The first application is supervised.** It fills one real posting, shows you every answer, and
+submits only after you say yes. **After that, runs submit on their own.** Pick a frequency and it
+saves a Grok Bot routine (nightly, say) instead of a cron job. Each run ends with a summary of what
+it sent, what it skipped, and what needs you.
+
+Sign-ins, 2FA and interactive CAPTCHAs stay yours. When it hits one while you're chatting, it
+hands you the screen. On a scheduled run it logs NEEDS HUMAN with the link and moves on. Your
+config and records live on your bot's computer, gitignored, never in the repo. Rules:
+[`GROKBOT.md`](GROKBOT.md).
 
 ---
 

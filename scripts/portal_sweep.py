@@ -2,7 +2,7 @@
 """Portal sweep: new-grad software postings on account-gated career portals (no login needed to LIST).
 
     python3 scripts/portal_sweep.py            # since state/last_portal_sweep.txt, then advance it
-    python3 scripts/portal_sweep.py --dry      # do not advance the cutoff
+    python3 scripts/portal_sweep.py --dry      # do not advance the cutoff (alias: --no-advance)
     python3 scripts/portal_sweep.py --since 2026-09-10T00:00Z
 
 Covers: Amazon (search API), the Workday tenants in WORKDAY (Nvidia, Salesforce, Intel, Arrowstreet,
@@ -50,7 +50,7 @@ def parse_ts(s):
         return d if d.tzinfo else d.replace(tzinfo=UTC)
     except Exception: return None
 
-args = sys.argv[1:]; dry = '--dry' in args
+args = sys.argv[1:]; dry = '--dry' in args or '--no-advance' in args
 since = args[args.index('--since') + 1] if '--since' in args else None
 CUT = parse_ts(since) if since else (parse_ts(open(CUT_FILE).read()) if os.path.exists(CUT_FILE) else datetime.datetime.now(UTC) - datetime.timedelta(days=7))
 if not CUT: sys.exit('bad cutoff')

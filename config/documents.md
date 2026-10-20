@@ -10,7 +10,10 @@ default to on. A missing key counts as on.
 | `documents.resume_max_pages` | `1` | Page limit the tailored PDF must fit. |
 | `documents.cover_letter_min_words` / `_max_words` | `150` / `250` | Length window the linter enforces. |
 
-Both build with tectonic (LaTeX) and read PDFs back with poppler: `brew install tectonic poppler`.
+Both build with tectonic (LaTeX) and read PDFs back with poppler: `brew install tectonic poppler` on macOS.
+On Linux: tectonic's release binary (`curl -fsSL https://drop-sh.fullyjustified.net | sh`, moved into a
+directory on PATH such as `~/.local/bin`) and `apt-get install poppler-utils`, plus `qpdf` when
+`resume_build_cmd` runs a build script that post-processes the PDF.
 Setup installs them. Without them the agent uploads the default resume and pastes letters as text.
 
 Every file lands in `applications/files/<company>-<role>/` under the user's real name, because the

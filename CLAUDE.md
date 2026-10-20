@@ -532,7 +532,7 @@ Notes that keep costing runs when forgotten:
   over the queue, over a fresh req that looks perfect, and over the lifetime counter saying 1 of 2.
   Match loosely: "Acme Tech" in the tracker means `acmetechnologiesllc` on Greenhouse, so grep
   the first word of the company name, not the ATS slug or the legal name. `./scripts/dupe_check.sh`
-  greps the tracker and exits 3 on a hit; a 3 means drop the company, not count the hits. This rule exists because a run once filled a second req at a company where an interview was already
+  greps the tracker and exits 3 on a hit; a 3 means drop the company, not count the hits. It exits 4 when the tracker path is set but the file is missing: fail closed, apply to nothing until the path is fixed. This rule exists because a run once filled a second req at a company where an interview was already
   scheduled, since `skip_companies` had never been synced with the tracker.
 - Respect per-company application limits when a posting states one (some firms allow one
   application per role per year, or N per 90 days). Record the limit and the reset date in

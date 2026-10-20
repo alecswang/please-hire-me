@@ -9,6 +9,8 @@
 # and run-SUMMARY bullets in the log.
 # RULE: search EVERY record. The log's `### ` headers are NOT the record.
 # Exit 3 = the company is in the user's interview tracker: HARD SKIP, stop.
+# Exit 4 = run.interview_tracker_path is set but the file is missing: fail closed, do not apply.
+# applications/*.DRYRUN.md files (planned, never submitted) are listed separately and do not count.
 set -uo pipefail
 [ $# -ge 1 ] || { echo "usage: $0 \"<Company Name>\" [req-or-job-id]" >&2; exit 2; }
 NAME="$1"; REQ="${2:-}"
@@ -30,7 +32,9 @@ if [ -n "$TRACKER" ] && [ -f "$TRACKER" ]; then
   fi
   echo "(not in tracker)"
 elif [ -n "$TRACKER" ]; then
-  echo "WARNING: run.interview_tracker_path is set but the file is missing: $TRACKER" >&2
+  echo "ERROR: run.interview_tracker_path is set but the file is missing: $TRACKER" >&2
+  echo "Fail closed: the tracker cannot be checked, so do not apply. Fix the path (on Grok Bot, a copy under state/)." >&2
+  exit 4
 fi
 
 sec "logs/applications-log.md — EVERY line, not just ### headers"
@@ -49,8 +53,10 @@ sec "data/ats-field-notes.md — per-company limits and reset dates"
 grep -in -- "$NAME" data/ats-field-notes.md && hit=1
 
 sec "applications/ filenames"
-ls applications 2>/dev/null | grep -i -- "$(echo "$NAME" | tr ' ' '-')" && hit=1
-ls applications 2>/dev/null | grep -i -- "$(echo "$NAME" | tr -d ' ')" && hit=1
+ls applications 2>/dev/null | grep -v '\.DRYRUN\.' | grep -i -- "$(echo "$NAME" | tr ' ' '-')" && hit=1
+ls applications 2>/dev/null | grep -v '\.DRYRUN\.' | grep -i -- "$(echo "$NAME" | tr -d ' ')" && hit=1
+ls applications 2>/dev/null | grep '\.DRYRUN\.' | grep -i -e "$(echo "$NAME" | tr ' ' '-')" -e "$(echo "$NAME" | tr -d ' ')" \
+  | sed 's/^/(dry run only, not an application, do not count) /'
 
 sec "screenshots/ filenames — an independent record; a submit can exist ONLY here"
 ls screenshots 2>/dev/null | grep -i -- "$(echo "$NAME" | tr ' ' '-')" && hit=1

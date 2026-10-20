@@ -3,6 +3,7 @@
 
     python3 scripts/linkedin_sweep.py              # since state/last_linkedin_sweep.txt (default 24h), then advance it
     python3 scripts/linkedin_sweep.py --hours 48   # fixed window, does not advance the cutoff
+    python3 scripts/linkedin_sweep.py --dry        # since the cutoff as usual, but do not advance it (alias: --no-advance)
     python3 scripts/linkedin_sweep.py --selftest   # run the parser checks and exit
 
 LinkedIn is a SOURCE, never a channel: never sign in, never use Easy Apply. Each row says whether the
@@ -177,7 +178,7 @@ def main():
           + ('' if ok else '  ★ PARTIAL (deadline or search errors); cutoff NOT advanced'))
     for c in rows:
         print('\t'.join(str(c[k]) for k in ('area', 'ago', 'company', 'title', 'location', 'years', 'pay', 'apply', 'url')))
-    if advance and ok:
+    if advance and ok and not ('--dry' in args or '--no-advance' in args):
         open(CUT_FILE, 'w').write(now.isoformat(timespec='minutes').replace('+00:00', 'Z') + '\n')
 
 if __name__ == '__main__':

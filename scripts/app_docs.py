@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Per-application documents: tailored resumes (LaTeX) and cover letters.
 
-Needs tectonic (LaTeX) and poppler (pdftotext, pdfinfo): `brew install tectonic poppler`.
+Needs tectonic (LaTeX) and poppler (pdftotext, pdfinfo): `brew install tectonic poppler` on macOS;
+on Linux, tectonic's release binary on PATH plus `apt-get install poppler-utils` (and `qpdf` if your
+resume_build_cmd post-processes the PDF).
 
   python3 scripts/app_docs.py verify-conversion <original.pdf> <resume.tex>
       Setup: prove a PDF-to-LaTeX transcription kept every word and added none.
@@ -89,16 +91,40 @@ def settings_docs():
 
 
 def base_resume():
-    p = Path(os.path.expanduser(profile().get("resume_tailor_base") or DEFAULT_BASE))
+    """The tailoring base. Unset and no data/resume.tex: None (tailoring is skipped). Set but missing:
+    an error, because a path from another machine (e.g. /Users/... on a Linux box) must not
+    silently turn tailoring off."""
+    set_to = profile().get("resume_tailor_base")
+    p = Path(os.path.expanduser(set_to or DEFAULT_BASE))
     p = p if p.is_absolute() else ROOT / p
-    return p if p.is_file() else None
+    if p.is_file():
+        return p
+    if set_to:
+        sys.exit(f"ERROR: profile.json resume_tailor_base is set but the file is missing: {p}\n"
+                 "Point it at a .tex file on THIS machine (repo-relative paths such as data/resume.tex work everywhere).")
+    return None
 
 
 def need(*tools):
     missing = [t for t in tools if not shutil.which(t)]
     if missing:
+        sys.exit(f"ERROR: missing {', '.join(missing)}. {install_hint(missing)}")
+
+
+def install_hint(missing):
+    """OS-aware install line. macOS: Homebrew. Linux: tectonic's release binary plus apt packages."""
+    if sys.platform == "darwin":
         pkgs = sorted({"poppler" if t in ("pdftotext", "pdfinfo") else t for t in missing})
-        sys.exit(f"ERROR: missing {', '.join(missing)}. Install with: brew install {' '.join(pkgs)}")
+        return f"Install with: brew install {' '.join(pkgs)}"
+    apt = sorted({"poppler-utils" if t in ("pdftotext", "pdfinfo") else "qpdf" if t in ("qpdf", "fix-qdf") else t
+                  for t in missing if t != "tectonic"})
+    parts = []
+    if "tectonic" in missing:
+        parts.append("tectonic: curl -fsSL https://drop-sh.fullyjustified.net | sh && mkdir -p ~/.local/bin "
+                     "&& mv tectonic ~/.local/bin/ (then put ~/.local/bin on PATH)")
+    if apt:
+        parts.append(f"sudo apt-get install -y {' '.join(apt)}")
+    return "Install with: " + "; ".join(parts)
 
 
 def strip_latex(s):
