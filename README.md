@@ -98,7 +98,7 @@ No Claude Code, no Chrome extension, no cron. Grok Bot has its own computer and 
 so it clones the repo, runs setup with you in chat, and applies from there. Your laptop can be
 closed.
 
-**New to Grok Bot?** Open <GROK_BOT_TEMPLATE_LINK>. It gives you your own bot, already set up for
+**New to Grok Bot?** Open the [please-hire-me Grok Bot template](https://x.ai/bot/WGG5D6dUfrYUsM7PNvzwd). It gives you your own bot, already set up for
 please-hire-me. Attach your resume and say *"set me up"*.
 
 **Already use Grok Bot?** Send it this, with your resume PDF attached:
