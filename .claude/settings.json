@@ -10,6 +10,16 @@
             "statusMessage": "Checking secret-store access policy"
           }
         ]
+      },
+      {
+        "matcher": "mcp__claude-in-chrome__.*|mcp__chrome-devtools__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-ai-leaks.py\"",
+            "statusMessage": "Checking form text for AI leaks"
+          }
+        ]
       }
     ]
   }
