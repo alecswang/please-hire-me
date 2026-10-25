@@ -245,3 +245,32 @@ Most candidates die at step 3 or 4. That is what keeps a run cheap.
 - **Extension state, two signatures.** RECOVERED: `tabs_context_mcp` says "No tab group exists for
   this session" and `list_connected_browsers` returns a browser. ABSENT: `[]` plus "Browser extension
   is not connected". Read the exact wording before declaring a hard stop.
+
+---
+
+## Canadian finance ATS landscape (2026-10-15)
+
+**None of the major Canadian financial services firms use Greenhouse, Lever, or Ashby.**
+Every Canadian bank, asset manager, boutique IB, Big 4, and consulting firm audited in October 2026 uses either Workday, Oracle Cloud (Taleo), or a proprietary portal. All require account creation before applying — out of scope for the agent unless the user has set up a signed-in portal.
+
+| Firm / category | ATS | Notes |
+|---|---|---|
+| TD Securities, RBC CM, BMO CM, CIBC, Scotiabank GBM | Workday (company-specific) | Summer 2027 student cycles expected November–February |
+| Brookfield Asset Management | Workday (`brookfieldprivate`) | Verified slug Oct 2026 |
+| Manulife | Workday (`manulife.wd3.myworkdayjobs.com`) | |
+| Definity Financial | Oracle Cloud | Multiple analyst co-op roles in Toronto |
+| Capital One Canada | Capital One portal (careers.capitalone.com) | Strategy Analyst Intern Summer 2027 confirmed open Oct 2026; requires account + transcript |
+| Bank of America Canada | BofA portal (careers.bankofamerica.com) | Summer 2027 Toronto cycle not yet posted in Oct 2026 |
+| Deloitte, EY, PwC, KPMG Canada | Firm-specific portals | All require accounts |
+
+**EQ Bank (Lever — `eqbank`):** The exception. Canada's challenger bank posts student roles on Lever with no account required. Current postings are Winter 2027 (Jan–Apr) only. Summer 2027 roles expected ~January 2027. High-value target: multiple finance and strategy intern roles, Toronto, hybrid. Check back January 2027.
+
+**Roles that required a transcript (blocked Oct 2026):**
+- The Brattle Group (Greenhouse `thebrattlegroup`): Energy Analyst Intern, Summer 2027, Toronto, CA$1,850/wk. Required transcript upload field is asterisked. A first-semester student has no graded transcript yet. Unblocked once the user downloads an unofficial transcript (an in-progress one is accepted) and sets `config/profile.json` → `transcript`.
+- Capital One Canada: Strategy Analyst Intern, Summer 2027, Toronto. Required transcript as single PDF combined with resume.
+
+**Graduation window traps:**
+- Stripe Data Analyst Intern (Toronto, Greenhouse): requires Dec 2027 or Spring/Summer 2028 graduation. Anyone graduating 2029 or later is ineligible.
+- Birch Hill Equity Partners (Greenhouse): Summer Analyst program explicitly for students finishing 2028.
+
+**Timing note:** For a first-year student, the following summer is their first-year summer. Many competitive programs (IB summer analyst, quant) recruit rising 3rd/4th year students only. Look for: programs without year-of-study gates, co-op programs with rolling hiring, and fintech/mid-size firms.
