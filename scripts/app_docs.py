@@ -417,11 +417,19 @@ def build_tex(path, out):
     q = lambda p: shlex.quote(str(p))  # noqa: E731
     if cmd:
         cmd = cmd.format(src=q(src), dir=q(src.parent), out=q(out))
+        r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=300)
     else:
+        # No shell: shlex quoting means nothing to cmd.exe on Windows. Build in a temp dir so
+        # data/resume.tex never overwrites data/resume.pdf, the original it is checked against.
         need("tectonic")
-        cmd = (f"tectonic --keep-logs --outdir {q(src.parent)} {q(src)} && "
-               f"mv {q(src.with_suffix('.pdf'))} {q(out)}")
-    r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=300)
+        with tempfile.TemporaryDirectory() as tmp:
+            r = subprocess.run(["tectonic", "--keep-logs", "--outdir", tmp, str(src)],
+                               capture_output=True, text=True, timeout=300)
+            built = Path(tmp) / (src.stem + ".pdf")
+            if r.returncode == 0 and built.is_file():
+                shutil.move(str(built), str(out))
+            if (Path(tmp) / (src.stem + ".log")).is_file():
+                shutil.copy(Path(tmp) / (src.stem + ".log"), src.with_suffix(".log"))
     log = r.stdout + r.stderr
     logf = src.with_suffix(".log")
     if logf.is_file():
@@ -732,8 +740,9 @@ def render_letter(path, out):
     contact = line1 + (" \\\\ " + line2 if line2 else "")
     paras = [p.strip() for p in re.split(r"\n\s*\n", Path(path).read_text()) if p.strip()]
     body = "\n\n".join(tex_escape(p).replace("\n", "\\\\\n") for p in paras)
+    today = date.today()  # "%-d" is glibc-only; Windows strftime rejects it
     tex = (LETTER_TEX.replace("@NAME@", tex_escape(name)).replace("@CONTACT@", contact)
-           .replace("@DATE@", date.today().strftime("%B %-d, %Y")).replace("@BODY@", body))
+           .replace("@DATE@", f"{today:%B} {today.day}, {today.year}").replace("@BODY@", body))
     with tempfile.TemporaryDirectory() as d:
         src = Path(d) / "letter.tex"
         src.write_text(tex)
@@ -806,4 +815,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # Windows defaults text I/O to the ANSI code page, which cannot decode pdftotext output or
+    # read UTF-8 resumes. Rerun in UTF-8 mode instead of passing encoding= to every call.
+    if os.name == "nt" and not sys.flags.utf8_mode:
+        sys.exit(subprocess.run([sys.executable, "-X", "utf8", *sys.argv]).returncode)
     main()
